@@ -21,8 +21,8 @@ def test_pack_one_draft_per_approval_with_real_facts():
 
 def test_pack_template_invents_no_numbers():
     res = client.post("/api/check", json=DEMOS["blockers"]).json()
-    from app.routers.pack import facts
-    allowed = "\n".join(facts(res["event"]).values())
+    from app.routers.pack import PURPOSE, facts
+    allowed = "\n".join(facts(res["event"]).values()) + "\n" + PURPOSE
     for d in client.post("/api/pack", json=res).json():
         assert llm.grounded(d["draft"], allowed), d["approval_id"]
 
