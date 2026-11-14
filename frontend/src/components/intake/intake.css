@@ -1,0 +1,12 @@
+/* Owner: Split A — IntakePanel */
+.intake .small { font-size: 12px; }
+.intake-error { background: #fde8e8; color: #8a1c1c; border-radius: 6px; padding: 6px 10px; margin-top: 6px; font-size: 14px; }
+.understood { margin-top: 10px; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.fact { font-size: 13px; background: #f5f6f4; border: 1px solid #e3e5e0; border-radius: 6px; padding: 3px 8px; }
+.fact .k { color: #6b7068; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; margin-right: 2px; }
+.fact.missing { background: #fff8e6; border-color: #f0d98a; color: #8a6500; }
+.questions .q { margin-top: 8px; }
+.questions .q label { margin: 0 0 4px; font-size: 14px; }
+.q-row { display: flex; gap: 6px; }
+.q-row input { flex: 1; min-width: 0; }
