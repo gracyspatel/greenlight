@@ -171,14 +171,15 @@ _SUMMARIES: dict[str, str] = {}
 
 SUMMARY_SYSTEM = """You write a 2-sentence summary of a student club's event funding application
 for a USG reviewer. Sentence 1: what the event is (name, date, venue, attendance, amount asked).
-Sentence 2: what the automated rule check found (use ONLY the listed issues; if none, say it
-passed every written rule checked). Never add numbers, rules or opinions not given.
+Sentence 2: what the automated rule check found, naming the 2-3 most serious issues (use ONLY
+the listed issues; if none, say it passed every written rule checked). Never add numbers, rules or opinions not given.
 Return JSON: {"summary": "..."}"""
 
 
 def _fallback_summary(ev: dict, r: dict) -> str:
-    flags = [f["message"] for a in r["approvals"] for f in a["flags"] if f["level"] == "reject"] or \
-            [f["message"] for a in r["approvals"] for f in a["flags"]]
+    named = lambda lvl: [f"{a['name']}: {f['message'].rstrip('.')}" for a in r["approvals"]
+                         for f in a["flags"] if lvl is None or f["level"] == lvl]
+    flags = named("reject") or named(None)
     head = (f"{ev.get('attendance') or '?'} attendees at {ev['venue'].get('name') or 'TBD'}, "
             f"asking {ev['funding_source']} for ${ev['amount_requested']:,.0f}.")
     if not flags:
@@ -197,7 +198,7 @@ def _summary(ev: dict, r: dict) -> tuple[str, str]:
     issues = [f"{a['name']}: {f['message']}" for a in r["approvals"] for f in a["flags"]]
     facts = (f"Event: {ev['name']} on {ev.get('date')} at {ev['venue'].get('name')}, "
              f"{ev.get('attendance')} attendees, asking {ev['funding_source']} for ${ev['amount_requested']:,.0f}.\n"
-             f"Verdict: {r['verdict_label']}\nIssues:\n" + ("\n".join(issues) or "(none)"))
+             f"Verdict: {r['verdict_label']}\nNumber of issues: {len(issues)}\nIssues:\n" + ("\n".join(issues) or "(none)"))
     try:
         s = str(llm.ask_json(SUMMARY_SYSTEM, facts, max_tokens=250).get("summary") or "").strip()
         if s and llm.grounded(s, facts):

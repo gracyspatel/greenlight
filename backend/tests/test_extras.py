@@ -54,3 +54,8 @@ def test_reviewer_queue_and_submit():
     rows = client.get("/api/reviewer/queue").json()
     assert rows[0]["name"] == "Submitted Diwali" and rows[0]["source"] == "submitted"
     assert rows[0]["verdict"] == "reject"  # verdict comes from the engine, not the submitter
+
+
+def test_grounded_catches_number_words():
+    assert not llm.grounded("the fifth event", "limit is 4")
+    assert llm.grounded("the fifth event", "event #5")

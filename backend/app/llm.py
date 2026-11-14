@@ -51,11 +51,16 @@ def ask_json(system: str, user: str, max_tokens: int = 1500) -> dict:
 
 # ---------------------------------------------------------------- grounding
 _NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
+_WORDS = {w: str(i) for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve".split())}
+_WORDS.update({"first": "1", "second": "2", "third": "3", "fourth": "4", "fifth": "5", "sixth": "6",
+               "twice": "2", "dozen": "12", "fifteen": "15", "twenty": "20", "thirty": "30"})
+_WORD_RE = re.compile(r"\b(" + "|".join(_WORDS) + r")\b", re.I)
 
 
 def numbers(text: str) -> set[str]:
-    """Numbers in text as canonical strings: '$4,500' -> '4500', '4.0' -> '4'."""
-    out = set()
+    """Numbers in text as canonical strings: '$4,500' -> '4500', '4.0' -> '4', 'fifth' -> '5'."""
+    out = {_WORDS[w.lower()] for w in _WORD_RE.findall(text or "")}
     for m in _NUM.findall(text or ""):
         v = m.replace(",", "").rstrip(".")
         try:
