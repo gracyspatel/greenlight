@@ -35,9 +35,16 @@ Return JSON: {"reason": "...", "fix": "..."}"""
 _NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
 
 
+_WORDS = {w: str(i) for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve".split())}
+_WORDS.update({"first": "1", "second": "2", "third": "3", "fourth": "4", "fifth": "5", "sixth": "6",
+               "twice": "2", "half": "0.5", "dozen": "12", "fifteen": "15", "twenty": "20", "thirty": "30"})
+_WORD_RE = re.compile(r"\b(" + "|".join(_WORDS) + r")\b", re.I)
+
+
 def _numbers(text: str) -> set[str]:
-    """Numbers as canonical strings: '$4,500' -> '4500', '4.0' -> '4'."""
-    out = set()
+    """Numbers as canonical strings: '$4,500' -> '4500', '4.0' -> '4', 'three' -> '3', '5th' -> '5'."""
+    out = {_WORDS[w.lower()] for w in _WORD_RE.findall(text or "")}
     for m in _NUM.findall(text or ""):
         v = m.replace(",", "").rstrip(".")
         try:

@@ -56,8 +56,9 @@ Never guess or invent a date, amount, count or name.
     "past_misuse": true | false | null,
     "usg_funds_low": true | false | null
   },
-  "questions": [string]                // at most 3 short questions about facts that are missing or unclear
-}
+  "questions": [string]                // 0-3 short questions, ONLY about something the text mentions but leaves unclear
+}                                      // (e.g. "food" but not who provides it). Never ask whether they will add
+                                       // something the text doesn't mention (dancing, tickets, other funding): treat it as no.
 
 Example. TODAY: Sunday 2026-11-15.
 Text: "Diwali Night on Dec 12 in the TCC Grand Ballroom (not booked yet), about 300 people. We'll sell tickets and
