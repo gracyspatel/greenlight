@@ -8,6 +8,7 @@ import Timeline from './components/timeline/Timeline'
 import VerdictCards from './components/verdict/VerdictCards'
 import FixPanel from './components/fixloop/FixPanel'
 import Tracker from './components/tracker/Tracker'
+import PackView from './components/pack/PackView'
 import ReviewerView from './components/reviewer/ReviewerView'
 import AskBox from './components/ask/AskBox'
 
@@ -19,7 +20,11 @@ export default function App() {
 
   useEffect(() => {
     if (!event) return
-    api.check(event).then(r => { setResult(r); setError('') }).catch(e => setError(String(e)))
+    let live = true // ignore answers to older edits that arrive late
+    api.check(event)
+      .then(r => { if (live) { setResult(r); setError('') } })
+      .catch(() => live && setError("Couldn't reach the rule checker. Is the backend running?"))
+    return () => { live = false }
   }, [event])
 
   return (
@@ -32,17 +37,18 @@ export default function App() {
         </nav>
       </header>
       {error && <div className="error">{error}</div>}
-      {view === 'reviewer' ? <ReviewerView /> : (
+      {view === 'reviewer' ? <main className="single"><ReviewerView /></main> : (
         <main>
           <section className="left">
             <IntakePanel event={event} setEvent={setEvent} questions={result?.questions || []} />
-            {event && <FixPanel event={event} setEvent={setEvent} />}
+            {event && <FixPanel event={event} setEvent={setEvent} result={result} />}
             <AskBox />
           </section>
           <section className="right">
             {result && <VerdictCards result={result} event={event} />}
             {result && <Timeline result={result} />}
             {result && <Tracker result={result} event={event} setEvent={setEvent} />}
+            {result && <PackView result={result} event={event} onSubmitted={() => setView('reviewer')} />}
           </section>
         </main>
       )}

@@ -44,7 +44,8 @@ def _num(v, default=0.0):
 
 
 def fmt(d: dt.date | None) -> str:
-    return d.strftime("%a %b %-d, %Y") if d else "—"
+    # %-d isn't supported on Windows, so build the day number by hand.
+    return (d.strftime("%a %b ") + str(d.day) + d.strftime(", %Y")) if d else "—"
 
 
 def _break_days(start: dt.date, end: dt.date):
