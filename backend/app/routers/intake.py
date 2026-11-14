@@ -345,6 +345,11 @@ def rule_extract(text: str, today: dt.date, question: str | None = None) -> dict
             ev.setdefault("org", {})["usg_received_this_year"] = v
             break
 
+    if _yes(r"funds? (?:are |is )?(?:running |getting )?low|low on funds|running out of (?:usg )?(?:money|funds)", low):
+        ev.setdefault("org", {})["usg_funds_low"] = True
+    if _yes(r"co-?funded|also funded by|(?:another|other) (?:usc )?(?:office|department|school) (?:is )?(?:also )?(?:funding|paying)", low):
+        ev.setdefault("org", {})["other_university_funding"] = True
+
     # a bare answer to one of the engine's questions ("300", "Dec 12", "$2,500")
     if question:
         q = question.lower()
