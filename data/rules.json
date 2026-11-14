@@ -1,0 +1,229 @@
+{
+  "_note": "One entry per approval and per rule. Every pass/fail decision is made in engine.py from these entries. Confirm every value with USG / Campus Activities before the demo and update 'verified_on'.",
+  "verified_on": null,
+  "approvals": [
+    {
+      "id": "usg_funding",
+      "name": "USG funding application",
+      "office": "Undergraduate Student Government (USG)",
+      "system": "EngageSC",
+      "link": "https://usg.usc.edu/?p=4479",
+      "trigger": "funding_usg",
+      "lead": {"academic_weeks": 6, "weekday": "Wednesday", "time": "23:59"},
+      "depends_on": [],
+      "text": "USG funding requests are due Wednesday at 11:59 PM, six academic weeks before the event.",
+      "source": "https://usg.usc.edu/?p=4479"
+    },
+    {
+      "id": "gsg_funding",
+      "name": "GSG funding application",
+      "office": "Graduate Student Government (GSG)",
+      "system": "EngageSC",
+      "link": "https://gsg.usc.edu/?p=21392",
+      "trigger": "funding_gsg",
+      "lead": null,
+      "depends_on": [],
+      "text": "GSG funding requests for RSOs must include vendor quotes.",
+      "source": "https://gsg.usc.edu/?p=21392"
+    },
+    {
+      "id": "venue_request",
+      "name": "Venue request",
+      "office": "Trojan Event Services",
+      "system": "USC Event Planning (Reserving Space)",
+      "link": "https://calendar.usc.edu/event-planning",
+      "trigger": "on_campus_venue",
+      "lead": {"days": 35},
+      "depends_on": [],
+      "text": "Venue requests are due five weeks before the event. Listing an event on EngageSC does not reserve a room.",
+      "source": "https://campusactivities.usc.edu/?p=11807"
+    },
+    {
+      "id": "uepa",
+      "name": "Event permit (UEPA)",
+      "office": "Campus Activities",
+      "system": "EngageSC",
+      "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "trigger": "on_campus_venue",
+      "lead": {"days": 21},
+      "depends_on": ["venue_request"],
+      "text": "The UEPA is due three weeks before the event, after the venue is confirmed.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/"
+    },
+    {
+      "id": "catering",
+      "name": "Catering / food approval",
+      "office": "USC Hospitality",
+      "system": "Submitted with the UEPA",
+      "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "trigger": "food",
+      "lead": null,
+      "depends_on": [],
+      "text": "Food sold at an event must come from an approved vendor.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/"
+    },
+    {
+      "id": "fundraising_ca",
+      "name": "Fundraising meeting (Campus Activities)",
+      "office": "Campus Activities",
+      "system": "Fundraising Approval Form",
+      "link": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+      "trigger": "ticket_sales",
+      "lead": {"days": 14},
+      "depends_on": [],
+      "text": "Clubs selling tickets must meet with Campus Activities at least two weeks before the event.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf"
+    },
+    {
+      "id": "fundraising_bh",
+      "name": "Fundraising sign-off (Bookstore & Hospitality)",
+      "office": "USC Bookstore and USC Hospitality",
+      "system": "Fundraising Approval Form",
+      "link": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+      "trigger": "ticket_sales",
+      "lead": null,
+      "depends_on": ["fundraising_ca"],
+      "text": "Bookstore and Hospitality sign the fundraising form after Campus Activities signs.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf"
+    },
+    {
+      "id": "social_dance_start",
+      "name": "Start social dance approval",
+      "office": "Student Affairs",
+      "system": "Social Dance Approval Process",
+      "link": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "trigger": "dancing",
+      "lead": {"days": 90},
+      "depends_on": [],
+      "text": "Social dance approval must be started three months before the event.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf"
+    },
+    {
+      "id": "social_dance_form",
+      "name": "Social dance approval form",
+      "office": "Student Affairs",
+      "system": "Social Dance Approval Process",
+      "link": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "trigger": "dancing",
+      "lead": {"days": 35},
+      "depends_on": ["social_dance_start"],
+      "text": "The social dance form is due five weeks before the event.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf"
+    }
+  ],
+  "rules": [
+    {
+      "id": "usg_event_cap",
+      "approval": "usg_funding",
+      "check": "usg_event_cap",
+      "params": {"max_events": 4},
+      "level": "reject",
+      "text": "USG funds up to 4 events per semester per RSO.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "This would be funded event #{n} this semester. Fund it another way, or move it to next semester."
+    },
+    {
+      "id": "usg_annual_cap",
+      "approval": "usg_funding",
+      "check": "usg_annual_cap",
+      "params": {"cap": 8000, "near_ratio": 0.85},
+      "level": "reject",
+      "text": "USG funding is capped at under $8,000 per year per RSO.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "You'd reach ${total:,.0f} for the year. Cut the request by at least ${over:,.0f}."
+    },
+    {
+      "id": "usg_venue_cap",
+      "approval": "usg_funding",
+      "check": "usg_venue_cap",
+      "params": {"cap": 4000},
+      "level": "reject",
+      "text": "USG venue funding is capped at $4,000.",
+      "source": "https://usg.usc.edu/?p=8893",
+      "fix": "Venue lines total ${venue:,.0f}. Cut them by ${over:,.0f}, or pay the difference from club funds."
+    },
+    {
+      "id": "gsg_vendor_quotes",
+      "approval": "gsg_funding",
+      "check": "vendor_quotes",
+      "params": {},
+      "level": "reject",
+      "text": "GSG funding requests must include vendor quotes.",
+      "source": "https://gsg.usc.edu/?p=21392",
+      "fix": "Attach a vendor quote for: {items}."
+    },
+    {
+      "id": "food_vendor",
+      "approval": "catering",
+      "check": "food_vendor",
+      "params": {},
+      "level": "reject",
+      "text": "Food sold at an event must come from an approved vendor.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "fix": "Switch to a USC-approved vendor, or give the food away free instead of selling it."
+    },
+    {
+      "id": "uepa_needs_venue",
+      "approval": "uepa",
+      "check": "venue_confirmed",
+      "params": {},
+      "level": "risk",
+      "text": "The UEPA is submitted after the venue is confirmed.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "fix": "Get the venue confirmed by Trojan Event Services first, then file the UEPA."
+    },
+    {
+      "id": "disc_other_funding",
+      "approval": "usg_funding",
+      "check": "flag",
+      "params": {"field": "other_university_funding"},
+      "level": "risk",
+      "text": "USG may deny funding when the event is funded by another University source.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "Say clearly in the application which costs the other source covers and which ones you're asking USG to cover."
+    },
+    {
+      "id": "disc_past_misuse",
+      "approval": "usg_funding",
+      "check": "flag",
+      "params": {"field": "past_misuse"},
+      "level": "risk",
+      "text": "USG may deny funding for past misuse of funds this year.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "Settle any open reimbursement issues with USG before you submit."
+    },
+    {
+      "id": "disc_low_funds",
+      "approval": "usg_funding",
+      "check": "flag",
+      "params": {"field": "usg_funds_low"},
+      "level": "risk",
+      "text": "USG funding is first-come, first-served, and funds can close mid-semester.",
+      "source": "https://usg.usc.edu/?p=9476",
+      "fix": "Submit as early as you can and check USG Live Updates. Have a backup plan for funding."
+    }
+  ],
+  "generic": {
+    "deadline_passed": {
+      "level": "reject",
+      "fix": "The deadline was {deadline}. Move the event to {earliest} or later, or drop this feature."
+    },
+    "deadline_soon": {
+      "level": "risk",
+      "fix": "Due in {days} day(s) ({deadline}). Submit today."
+    },
+    "break_crossing": {
+      "level": "risk",
+      "text": "Academic-week deadlines don't count break weeks, so the count is less certain near breaks.",
+      "fix": "This window crosses {breaks}. Confirm the exact deadline with usgfunds@usc.edu."
+    },
+    "returned": {
+      "level": "risk",
+      "fix": "This was returned. Fix what the office flagged and resubmit."
+    },
+    "depends_pending": {
+      "level": "risk",
+      "fix": "Finish \"{dep}\" first."
+    }
+  }
+}

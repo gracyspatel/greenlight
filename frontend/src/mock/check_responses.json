@@ -1,0 +1,619 @@
+{
+ "ready": {
+  "event": {
+   "id": "ready",
+   "name": "Spring Career Mixer",
+   "as_of": "2026-11-15",
+   "date": "2027-03-04",
+   "venue": {
+    "name": "Ronald Tutor Campus Center 450",
+    "on_campus": true,
+    "confirmed": true
+   },
+   "attendance": 80,
+   "food": {
+    "served": true,
+    "sold": false,
+    "vendor": "USC Hospitality",
+    "vendor_approved": true
+   },
+   "dancing": false,
+   "ticket_sales": false,
+   "funding_source": "USG",
+   "amount_requested": 1200.0,
+   "budget_lines": [
+    {
+     "item": "Room rental",
+     "category": "venue",
+     "amount": 400.0,
+     "quote_attached": true
+    },
+    {
+     "item": "Catering (USC Hospitality)",
+     "category": "food",
+     "amount": 800.0,
+     "quote_attached": true
+    }
+   ],
+   "org": {
+    "funded_events_this_semester": 1,
+    "usg_received_this_year": 1500.0,
+    "other_university_funding": false,
+    "past_misuse": false,
+    "usg_funds_low": false
+   },
+   "tracking": {}
+  },
+  "as_of": "2026-11-15",
+  "features": {
+   "funding_usg": true,
+   "funding_gsg": false,
+   "on_campus_venue": true,
+   "food": true,
+   "ticket_sales": false,
+   "dancing": false
+  },
+  "questions": [],
+  "approvals": [
+   {
+    "id": "usg_funding",
+    "name": "USG funding application",
+    "office": "Undergraduate Student Government (USG)",
+    "system": "EngageSC",
+    "link": "https://usg.usc.edu/?p=4479",
+    "depends_on": [],
+    "deadline": "2027-01-20",
+    "deadline_label": "Wed Jan 20, 2027, 11:59 PM",
+    "days_left": 66,
+    "color": "green",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   },
+   {
+    "id": "venue_request",
+    "name": "Venue request",
+    "office": "Trojan Event Services",
+    "system": "USC Event Planning (Reserving Space)",
+    "link": "https://calendar.usc.edu/event-planning",
+    "depends_on": [],
+    "deadline": "2027-01-28",
+    "deadline_label": "Thu Jan 28, 2027",
+    "days_left": 74,
+    "color": "green",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   },
+   {
+    "id": "uepa",
+    "name": "Event permit (UEPA)",
+    "office": "Campus Activities",
+    "system": "EngageSC",
+    "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+    "depends_on": [
+     "venue_request"
+    ],
+    "deadline": "2027-02-11",
+    "deadline_label": "Thu Feb 11, 2027",
+    "days_left": 88,
+    "color": "green",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   },
+   {
+    "id": "catering",
+    "name": "Catering / food approval",
+    "office": "USC Hospitality",
+    "system": "Submitted with the UEPA",
+    "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+    "depends_on": [],
+    "deadline": null,
+    "deadline_label": "No fixed lead time in our rulebook. Confirm with the office.",
+    "days_left": null,
+    "color": "none",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   }
+  ],
+  "verdict": "ready",
+  "verdict_label": "Ready",
+  "counts": {
+   "ready": 4,
+   "risk": 0,
+   "reject": 0
+  },
+  "disclaimer": "Ready means your request meets every written rule we check. The final decision is still USG's."
+ },
+ "at_risk": {
+  "event": {
+   "id": "at_risk",
+   "name": "Hackathon Kickoff Night",
+   "as_of": "2026-11-15",
+   "date": "2027-02-03",
+   "venue": {
+    "name": "Seeley G. Mudd 101",
+    "on_campus": true,
+    "confirmed": false
+   },
+   "attendance": 150,
+   "food": {
+    "served": true,
+    "sold": false,
+    "vendor": "USC Hospitality",
+    "vendor_approved": true
+   },
+   "dancing": false,
+   "ticket_sales": false,
+   "funding_source": "USG",
+   "amount_requested": 2800.0,
+   "budget_lines": [
+    {
+     "item": "Room rental",
+     "category": "venue",
+     "amount": 1200.0,
+     "quote_attached": true
+    },
+    {
+     "item": "Catering",
+     "category": "food",
+     "amount": 1600.0,
+     "quote_attached": true
+    }
+   ],
+   "org": {
+    "funded_events_this_semester": 2,
+    "usg_received_this_year": 4200.0,
+    "usg_funds_low": true,
+    "other_university_funding": false,
+    "past_misuse": false
+   },
+   "tracking": {}
+  },
+  "as_of": "2026-11-15",
+  "features": {
+   "funding_usg": true,
+   "funding_gsg": false,
+   "on_campus_venue": true,
+   "food": true,
+   "ticket_sales": false,
+   "dancing": false
+  },
+  "questions": [],
+  "approvals": [
+   {
+    "id": "usg_funding",
+    "name": "USG funding application",
+    "office": "Undergraduate Student Government (USG)",
+    "system": "EngageSC",
+    "link": "https://usg.usc.edu/?p=4479",
+    "depends_on": [],
+    "deadline": "2026-11-18",
+    "deadline_label": "Wed Nov 18, 2026, 11:59 PM",
+    "days_left": 3,
+    "color": "yellow",
+    "status": "not_started",
+    "verdict": "risk",
+    "verdict_label": "At risk",
+    "flags": [
+     {
+      "rule_id": "usg_funding_deadline",
+      "level": "risk",
+      "message": "Due in 3 day(s).",
+      "rule_text": "USG funding requests are due Wednesday at 11:59 PM, six academic weeks before the event.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "Due in 3 day(s) (Wed Nov 18, 2026). Submit today."
+     },
+     {
+      "rule_id": "usg_funding_breaks",
+      "level": "risk",
+      "message": "The deadline window crosses a break.",
+      "rule_text": "Academic-week deadlines don't count break weeks, so the count is less certain near breaks.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "This window crosses Thanksgiving break, Winter break. Confirm the exact deadline with usgfunds@usc.edu."
+     },
+     {
+      "rule_id": "usg_annual_cap",
+      "level": "risk",
+      "message": "$7,000 for the year is close to the $8,000 cap.",
+      "rule_text": "USG funding is capped at under $8,000 per year per RSO.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "Expect closer review. Keep this year's other requests small."
+     },
+     {
+      "rule_id": "disc_low_funds",
+      "level": "risk",
+      "message": "USG funding is first-come, first-served, and funds can close mid-semester.",
+      "rule_text": "USG funding is first-come, first-served, and funds can close mid-semester.",
+      "source": "https://usg.usc.edu/?p=9476",
+      "fix": "Submit as early as you can and check USG Live Updates. Have a backup plan for funding."
+     }
+    ]
+   },
+   {
+    "id": "venue_request",
+    "name": "Venue request",
+    "office": "Trojan Event Services",
+    "system": "USC Event Planning (Reserving Space)",
+    "link": "https://calendar.usc.edu/event-planning",
+    "depends_on": [],
+    "deadline": "2026-12-30",
+    "deadline_label": "Wed Dec 30, 2026",
+    "days_left": 45,
+    "color": "green",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   },
+   {
+    "id": "uepa",
+    "name": "Event permit (UEPA)",
+    "office": "Campus Activities",
+    "system": "EngageSC",
+    "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+    "depends_on": [
+     "venue_request"
+    ],
+    "deadline": "2027-01-13",
+    "deadline_label": "Wed Jan 13, 2027",
+    "days_left": 59,
+    "color": "green",
+    "status": "not_started",
+    "verdict": "risk",
+    "verdict_label": "At risk",
+    "flags": [
+     {
+      "rule_id": "uepa_needs_venue",
+      "level": "risk",
+      "message": "The venue isn't confirmed yet.",
+      "rule_text": "The UEPA is submitted after the venue is confirmed.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "fix": "Get the venue confirmed by Trojan Event Services first, then file the UEPA."
+     }
+    ]
+   },
+   {
+    "id": "catering",
+    "name": "Catering / food approval",
+    "office": "USC Hospitality",
+    "system": "Submitted with the UEPA",
+    "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+    "depends_on": [],
+    "deadline": null,
+    "deadline_label": "No fixed lead time in our rulebook. Confirm with the office.",
+    "days_left": null,
+    "color": "none",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   }
+  ],
+  "verdict": "risk",
+  "verdict_label": "At risk",
+  "counts": {
+   "ready": 2,
+   "risk": 2,
+   "reject": 0
+  },
+  "disclaimer": "Ready means your request meets every written rule we check. The final decision is still USG's."
+ },
+ "blockers": {
+  "event": {
+   "id": "blockers",
+   "name": "Diwali Night",
+   "as_of": "2026-11-15",
+   "date": "2026-12-12",
+   "venue": {
+    "name": "TCC Grand Ballroom",
+    "on_campus": true,
+    "confirmed": false
+   },
+   "attendance": 300,
+   "food": {
+    "served": true,
+    "sold": true,
+    "vendor": "Local restaurant",
+    "vendor_approved": false
+   },
+   "dancing": true,
+   "ticket_sales": true,
+   "funding_source": "USG",
+   "amount_requested": 3500.0,
+   "budget_lines": [
+    {
+     "item": "Grand Ballroom",
+     "category": "venue",
+     "amount": 4500.0,
+     "quote_attached": false
+    },
+    {
+     "item": "DJ",
+     "category": "entertainment",
+     "amount": 600.0,
+     "quote_attached": false
+    }
+   ],
+   "org": {
+    "funded_events_this_semester": 4,
+    "usg_received_this_year": 5200.0,
+    "other_university_funding": false,
+    "past_misuse": false,
+    "usg_funds_low": false
+   },
+   "tracking": {}
+  },
+  "as_of": "2026-11-15",
+  "features": {
+   "funding_usg": true,
+   "funding_gsg": false,
+   "on_campus_venue": true,
+   "food": true,
+   "ticket_sales": true,
+   "dancing": true
+  },
+  "questions": [],
+  "approvals": [
+   {
+    "id": "social_dance_start",
+    "name": "Start social dance approval",
+    "office": "Student Affairs",
+    "system": "Social Dance Approval Process",
+    "link": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+    "depends_on": [],
+    "deadline": "2026-09-13",
+    "deadline_label": "Sun Sep 13, 2026",
+    "days_left": -63,
+    "color": "red",
+    "status": "not_started",
+    "verdict": "reject",
+    "verdict_label": "Will be rejected",
+    "flags": [
+     {
+      "rule_id": "social_dance_start_deadline",
+      "level": "reject",
+      "message": "Deadline passed 63 day(s) ago.",
+      "rule_text": "Social dance approval must be started three months before the event.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "fix": "The deadline was Sun Sep 13, 2026. Move the event to Sat Feb 13, 2027 or later, or drop this feature."
+     }
+    ]
+   },
+   {
+    "id": "usg_funding",
+    "name": "USG funding application",
+    "office": "Undergraduate Student Government (USG)",
+    "system": "EngageSC",
+    "link": "https://usg.usc.edu/?p=4479",
+    "depends_on": [],
+    "deadline": "2026-10-28",
+    "deadline_label": "Wed Oct 28, 2026, 11:59 PM",
+    "days_left": -18,
+    "color": "red",
+    "status": "not_started",
+    "verdict": "reject",
+    "verdict_label": "Will be rejected",
+    "flags": [
+     {
+      "rule_id": "usg_funding_deadline",
+      "level": "reject",
+      "message": "Deadline passed 18 day(s) ago.",
+      "rule_text": "USG funding requests are due Wednesday at 11:59 PM, six academic weeks before the event.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "The deadline was Wed Oct 28, 2026. Move the event to Fri Jan 22, 2027 or later, or drop this feature."
+     },
+     {
+      "rule_id": "usg_funding_breaks",
+      "level": "risk",
+      "message": "The deadline window crosses a break.",
+      "rule_text": "Academic-week deadlines don't count break weeks, so the count is less certain near breaks.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "This window crosses Thanksgiving break. Confirm the exact deadline with usgfunds@usc.edu."
+     },
+     {
+      "rule_id": "usg_event_cap",
+      "level": "reject",
+      "message": "This would be funded event #5; the limit is 4.",
+      "rule_text": "USG funds up to 4 events per semester per RSO.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "This would be funded event #5 this semester. Fund it another way, or move it to next semester."
+     },
+     {
+      "rule_id": "usg_annual_cap",
+      "level": "reject",
+      "message": "$8,700 for the year breaks the $8,000 cap.",
+      "rule_text": "USG funding is capped at under $8,000 per year per RSO.",
+      "source": "https://usg.usc.edu/?p=4479",
+      "fix": "You'd reach $8,700 for the year. Cut the request by at least $701."
+     },
+     {
+      "rule_id": "usg_venue_cap",
+      "level": "reject",
+      "message": "Venue costs of $4,500 are over the $4,000 maximum.",
+      "rule_text": "USG venue funding is capped at $4,000.",
+      "source": "https://usg.usc.edu/?p=8893",
+      "fix": "Venue lines total $4,500. Cut them by $500, or pay the difference from club funds."
+     }
+    ]
+   },
+   {
+    "id": "venue_request",
+    "name": "Venue request",
+    "office": "Trojan Event Services",
+    "system": "USC Event Planning (Reserving Space)",
+    "link": "https://calendar.usc.edu/event-planning",
+    "depends_on": [],
+    "deadline": "2026-11-07",
+    "deadline_label": "Sat Nov 7, 2026",
+    "days_left": -8,
+    "color": "red",
+    "status": "not_started",
+    "verdict": "reject",
+    "verdict_label": "Will be rejected",
+    "flags": [
+     {
+      "rule_id": "venue_request_deadline",
+      "level": "reject",
+      "message": "Deadline passed 8 day(s) ago.",
+      "rule_text": "Venue requests are due five weeks before the event. Listing an event on EngageSC does not reserve a room.",
+      "source": "https://campusactivities.usc.edu/?p=11807",
+      "fix": "The deadline was Sat Nov 7, 2026. Move the event to Sun Dec 20, 2026 or later, or drop this feature."
+     }
+    ]
+   },
+   {
+    "id": "social_dance_form",
+    "name": "Social dance approval form",
+    "office": "Student Affairs",
+    "system": "Social Dance Approval Process",
+    "link": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+    "depends_on": [
+     "social_dance_start"
+    ],
+    "deadline": "2026-11-07",
+    "deadline_label": "Sat Nov 7, 2026",
+    "days_left": -8,
+    "color": "red",
+    "status": "not_started",
+    "verdict": "reject",
+    "verdict_label": "Will be rejected",
+    "flags": [
+     {
+      "rule_id": "social_dance_form_deadline",
+      "level": "reject",
+      "message": "Deadline passed 8 day(s) ago.",
+      "rule_text": "The social dance form is due five weeks before the event.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "fix": "The deadline was Sat Nov 7, 2026. Move the event to Sun Dec 20, 2026 or later, or drop this feature."
+     },
+     {
+      "rule_id": "social_dance_form_order",
+      "level": "risk",
+      "message": "Waiting on \"Start social dance approval\".",
+      "rule_text": "The social dance form is due five weeks before the event.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "fix": "Finish \"Start social dance approval\" first."
+     }
+    ]
+   },
+   {
+    "id": "uepa",
+    "name": "Event permit (UEPA)",
+    "office": "Campus Activities",
+    "system": "EngageSC",
+    "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+    "depends_on": [
+     "venue_request"
+    ],
+    "deadline": "2026-11-21",
+    "deadline_label": "Sat Nov 21, 2026",
+    "days_left": 6,
+    "color": "yellow",
+    "status": "not_started",
+    "verdict": "risk",
+    "verdict_label": "At risk",
+    "flags": [
+     {
+      "rule_id": "uepa_deadline",
+      "level": "risk",
+      "message": "Due in 6 day(s).",
+      "rule_text": "The UEPA is due three weeks before the event, after the venue is confirmed.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "fix": "Due in 6 day(s) (Sat Nov 21, 2026). Submit today."
+     },
+     {
+      "rule_id": "uepa_needs_venue",
+      "level": "risk",
+      "message": "The venue isn't confirmed yet.",
+      "rule_text": "The UEPA is submitted after the venue is confirmed.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "fix": "Get the venue confirmed by Trojan Event Services first, then file the UEPA."
+     }
+    ]
+   },
+   {
+    "id": "fundraising_ca",
+    "name": "Fundraising meeting (Campus Activities)",
+    "office": "Campus Activities",
+    "system": "Fundraising Approval Form",
+    "link": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+    "depends_on": [],
+    "deadline": "2026-11-28",
+    "deadline_label": "Sat Nov 28, 2026",
+    "days_left": 13,
+    "color": "green",
+    "status": "not_started",
+    "verdict": "ready",
+    "verdict_label": "Ready",
+    "flags": []
+   },
+   {
+    "id": "catering",
+    "name": "Catering / food approval",
+    "office": "USC Hospitality",
+    "system": "Submitted with the UEPA",
+    "link": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+    "depends_on": [],
+    "deadline": null,
+    "deadline_label": "No fixed lead time in our rulebook. Confirm with the office.",
+    "days_left": null,
+    "color": "none",
+    "status": "not_started",
+    "verdict": "reject",
+    "verdict_label": "Will be rejected",
+    "flags": [
+     {
+      "rule_id": "food_vendor",
+      "level": "reject",
+      "message": "Food is being sold, and Local restaurant isn't marked as an approved vendor.",
+      "rule_text": "Food sold at an event must come from an approved vendor.",
+      "source": "https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/",
+      "fix": "Switch to a USC-approved vendor, or give the food away free instead of selling it."
+     }
+    ]
+   },
+   {
+    "id": "fundraising_bh",
+    "name": "Fundraising sign-off (Bookstore & Hospitality)",
+    "office": "USC Bookstore and USC Hospitality",
+    "system": "Fundraising Approval Form",
+    "link": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+    "depends_on": [
+     "fundraising_ca"
+    ],
+    "deadline": null,
+    "deadline_label": "No fixed lead time in our rulebook. Confirm with the office.",
+    "days_left": null,
+    "color": "none",
+    "status": "not_started",
+    "verdict": "risk",
+    "verdict_label": "At risk",
+    "flags": [
+     {
+      "rule_id": "fundraising_bh_order",
+      "level": "risk",
+      "message": "Waiting on \"Fundraising meeting (Campus Activities)\".",
+      "rule_text": "Bookstore and Hospitality sign the fundraising form after Campus Activities signs.",
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+      "fix": "Finish \"Fundraising meeting (Campus Activities)\" first."
+     }
+    ]
+   }
+  ],
+  "verdict": "reject",
+  "verdict_label": "Will be rejected",
+  "counts": {
+   "ready": 1,
+   "risk": 2,
+   "reject": 5
+  },
+  "disclaimer": "Ready means your request meets every written rule we check. The final decision is still USG's."
+ }
+}

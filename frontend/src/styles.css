@@ -1,0 +1,26 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #f5f6f4; color: #1d1f1c; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: #fff; border-bottom: 1px solid #e3e5e0; }
+h1 { margin: 0; font-size: 22px; } h2 { margin: 0 0 10px; font-size: 17px; }
+main { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; padding: 16px 24px; }
+.card { background: #fff; border: 1px solid #e3e5e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+textarea, input, select { font: inherit; padding: 8px; border: 1px solid #cfd3cc; border-radius: 6px; }
+textarea { width: 100%; }
+label { display: block; margin: 8px 0; }
+button { font: inherit; padding: 8px 12px; border-radius: 6px; border: 0; background: #1f7a3a; color: #fff; cursor: pointer; }
+button.ghost, nav button { background: #eef0ec; color: #1d1f1c; } nav button.on { background: #1f7a3a; color: #fff; }
+button:disabled { opacity: .5; }
+.muted { color: #6b7068; font-size: 13px; }
+.error { background: #fde8e8; padding: 8px 24px; }
+.banner { border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.banner.ready, .pill.ready { background: #dff3e4; } .banner.risk, .pill.risk { background: #fff3d1; } .banner.reject, .pill.reject { background: #fde1e1; }
+.approval { border-left: 4px solid #ccc; padding: 6px 10px; margin: 8px 0; }
+.approval.ready { border-color: #1f7a3a; } .approval.risk { border-color: #d39b00; } .approval.reject { border-color: #c62828; }
+.approval .row { justify-content: space-between; }
+.pill { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: #eee; }
+.flag { font-size: 14px; margin: 6px 0 6px 8px; }
+.timeline { padding-left: 18px; } .timeline li { margin: 6px 0; }
+.dot-red::marker { color: #c62828; } .dot-yellow::marker { color: #d39b00; } .dot-green::marker { color: #1f7a3a; }
+.questions { background: #fff8e6; padding: 8px 12px; border-radius: 6px; margin-top: 8px; }
+table { width: 100%; border-collapse: collapse; } td, th { text-align: left; padding: 6px; border-bottom: 1px solid #eee; font-size: 14px; }

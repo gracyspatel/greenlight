@@ -1,0 +1,327 @@
+"""Greenlight rules engine.
+
+The AI understands, the rules decide: every pass/fail in here is plain code
+reading rules.json. No model calls happen in this file.
+"""
+from __future__ import annotations
+
+import datetime as dt
+import json
+from pathlib import Path
+
+BASE = Path(__file__).resolve().parents[2] / "data"
+RULES = json.loads((BASE / "rules.json").read_text())
+CAL = json.loads((BASE / "calendar.json").read_text())
+
+APPROVALS = {a["id"]: a for a in RULES["approvals"]}
+GENERIC = RULES["generic"]
+LEVEL_RANK = {"ready": 0, "risk": 1, "reject": 2}
+LEVEL_LABEL = {"ready": "Ready", "risk": "At risk", "reject": "Will be rejected"}
+WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+BREAKS = [
+    (b["name"], dt.date.fromisoformat(b["start"]), dt.date.fromisoformat(b["end"]))
+    for b in CAL["breaks"]
+]
+
+
+# ---------------------------------------------------------------- helpers
+def _date(v):
+    if not v:
+        return None
+    if isinstance(v, dt.date):
+        return v
+    try:
+        return dt.date.fromisoformat(str(v)[:10])
+    except ValueError:
+        return None
+
+
+def _num(v, default=0.0):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def fmt(d: dt.date | None) -> str:
+    return d.strftime("%a %b %-d, %Y") if d else "—"
+
+
+def _break_days(start: dt.date, end: dt.date):
+    """Days in [start, end) that fall in a break, and the break names touched."""
+    days, names = 0, set()
+    d = start
+    while d < end:
+        for name, bs, be in BREAKS:
+            if bs <= d <= be:
+                days += 1
+                names.add(name)
+                break
+        d += dt.timedelta(days=1)
+    return days, names
+
+
+def academic_weeks_back(event: dt.date, weeks: int, weekday: str):
+    """Count back `weeks` academic weeks (a 7-day span mostly inside a break
+    doesn't count), then go back to the given weekday."""
+    d, counted, touched = event, 0, set()
+    for _ in range(80):  # guard
+        if counted >= weeks:
+            break
+        start = d - dt.timedelta(days=7)
+        bdays, names = _break_days(start, d)
+        touched |= names
+        if bdays < 4:
+            counted += 1
+        d = start
+    target = WEEKDAYS.index(weekday)
+    while d.weekday() != target:
+        d -= dt.timedelta(days=1)
+    return d, sorted(touched)
+
+
+def deadline_for(approval: dict, event_date: dt.date):
+    lead = approval.get("lead")
+    if not lead:
+        return None, []
+    if "academic_weeks" in lead:
+        return academic_weeks_back(event_date, lead["academic_weeks"], lead.get("weekday", "Wednesday"))
+    return event_date - dt.timedelta(days=lead["days"]), []
+
+
+def earliest_event_date(approval: dict, today: dt.date):
+    """Earliest event date whose deadline for this approval is still open."""
+    d = today
+    for _ in range(400):
+        dl, _ = deadline_for(approval, d)
+        if dl is None or dl >= today:
+            return d
+        d += dt.timedelta(days=1)
+    return None
+
+
+# ---------------------------------------------------------------- normalize
+def normalize(ev: dict) -> dict:
+    ev = dict(ev or {})
+    ev.setdefault("name", "Untitled event")
+    venue = dict(ev.get("venue") or {})
+    venue.setdefault("name", "")
+    venue.setdefault("on_campus", True)
+    venue.setdefault("confirmed", False)
+    ev["venue"] = venue
+    food = dict(ev.get("food") or {})
+    for k in ("served", "sold", "vendor_approved"):
+        food[k] = bool(food.get(k, False))
+    food.setdefault("vendor", "")
+    ev["food"] = food
+    ev["dancing"] = bool(ev.get("dancing", False))
+    ev["ticket_sales"] = bool(ev.get("ticket_sales", False))
+    src = str(ev.get("funding_source") or "none").upper()
+    ev["funding_source"] = src if src in ("USG", "GSG") else "none"
+    ev["amount_requested"] = _num(ev.get("amount_requested"))
+    lines = []
+    for ln in ev.get("budget_lines") or []:
+        lines.append({
+            "item": ln.get("item", ""),
+            "category": (ln.get("category") or "other").lower(),
+            "amount": _num(ln.get("amount")),
+            "quote_attached": bool(ln.get("quote_attached", False)),
+        })
+    ev["budget_lines"] = lines
+    org = dict(ev.get("org") or {})
+    org["funded_events_this_semester"] = int(_num(org.get("funded_events_this_semester")))
+    org["usg_received_this_year"] = _num(org.get("usg_received_this_year"))
+    for k in ("other_university_funding", "past_misuse", "usg_funds_low"):
+        org[k] = bool(org.get(k, False))
+    ev["org"] = org
+    ev["tracking"] = dict(ev.get("tracking") or {})
+    return ev
+
+
+def features(ev: dict) -> dict:
+    return {
+        "funding_usg": ev["funding_source"] == "USG",
+        "funding_gsg": ev["funding_source"] == "GSG",
+        "on_campus_venue": bool(ev["venue"].get("on_campus")),
+        "food": ev["food"]["served"] or ev["food"]["sold"],
+        "ticket_sales": ev["ticket_sales"],
+        "dancing": ev["dancing"],
+    }
+
+
+def missing_questions(ev: dict) -> list[str]:
+    q = []
+    if not _date(ev.get("date")):
+        q.append("What date is the event?")
+    if not ev["venue"].get("name"):
+        q.append("Where is it being held, and is that on campus?")
+    if not ev.get("attendance"):
+        q.append("About how many people do you expect?")
+    if ev["funding_source"] != "none" and not ev["budget_lines"]:
+        q.append("What are the budget lines (item, category, amount)?")
+    if ev["funding_source"] != "none" and not ev["amount_requested"]:
+        q.append("How much are you requesting?")
+    return q
+
+
+# ---------------------------------------------------------------- checks
+def _flag(rule_id, level, message, text, source, fix):
+    return {"rule_id": rule_id, "level": level, "message": message,
+            "rule_text": text, "source": source, "fix": fix}
+
+
+def run_rule(rule: dict, ev: dict):
+    c, p, org = rule["check"], rule["params"], ev["org"]
+    lines = ev["budget_lines"]
+    if c == "usg_event_cap":
+        n = org["funded_events_this_semester"] + 1
+        if n > p["max_events"]:
+            return rule["level"], f"This would be funded event #{n}; the limit is {p['max_events']}.", rule["fix"].format(n=n)
+    elif c == "usg_annual_cap":
+        total = org["usg_received_this_year"] + ev["amount_requested"]
+        cap = p["cap"]
+        if total >= cap:
+            over = total - cap + 1
+            return "reject", f"${total:,.0f} for the year breaks the ${cap:,.0f} cap.", rule["fix"].format(total=total, over=over)
+        if total >= cap * p["near_ratio"]:
+            return "risk", f"${total:,.0f} for the year is close to the ${cap:,.0f} cap.", "Expect closer review. Keep this year's other requests small."
+    elif c == "usg_venue_cap":
+        venue = sum(l["amount"] for l in lines if l["category"] == "venue")
+        if venue > p["cap"]:
+            over = venue - p["cap"]
+            return rule["level"], f"Venue costs of ${venue:,.0f} are over the ${p['cap']:,.0f} maximum.", rule["fix"].format(venue=venue, over=over)
+    elif c == "vendor_quotes":
+        missing = [l["item"] or "(unnamed line)" for l in lines if not l["quote_attached"]]
+        if missing:
+            return rule["level"], f"{len(missing)} budget line(s) have no vendor quote.", rule["fix"].format(items=", ".join(missing))
+    elif c == "food_vendor":
+        f = ev["food"]
+        if f["sold"] and not f["vendor_approved"]:
+            v = f["vendor"] or "your vendor"
+            return rule["level"], f"Food is being sold, and {v} isn't marked as an approved vendor.", rule["fix"]
+    elif c == "venue_confirmed":
+        if not ev["venue"].get("confirmed"):
+            return rule["level"], "The venue isn't confirmed yet.", rule["fix"]
+    elif c == "flag":
+        if org.get(p["field"]):
+            return rule["level"], rule["text"], rule["fix"]
+    return None
+
+
+def check(raw_event: dict, today: dt.date | None = None) -> dict:
+    ev = normalize(raw_event)
+    today = _date(ev.get("as_of")) or today or dt.date.today()
+    event_date = _date(ev.get("date"))
+    feats = features(ev)
+    questions = missing_questions(ev)
+
+    needed = [a for a in RULES["approvals"] if feats.get(a["trigger"])]
+    needed_ids = {a["id"] for a in needed}
+    results = []
+
+    for a in needed:
+        track = ev["tracking"].get(a["id"], {})
+        status = track.get("status", "not_started")
+        flags = []
+        deadline, breaks = (deadline_for(a, event_date) if event_date else (None, []))
+        days_left = (deadline - today).days if deadline else None
+        done = status in ("submitted", "approved")
+
+        # deadlines
+        if deadline and not done:
+            if days_left < 0:
+                earliest = earliest_event_date(a, today)
+                g = GENERIC["deadline_passed"]
+                flags.append(_flag(f"{a['id']}_deadline", g["level"],
+                                   f"Deadline passed {-days_left} day(s) ago.",
+                                   a["text"], a["source"],
+                                   g["fix"].format(deadline=fmt(deadline), earliest=fmt(earliest))))
+            elif days_left <= 7:
+                g = GENERIC["deadline_soon"]
+                flags.append(_flag(f"{a['id']}_deadline", g["level"],
+                                   f"Due in {days_left} day(s).", a["text"], a["source"],
+                                   g["fix"].format(days=days_left, deadline=fmt(deadline))))
+        if breaks and not done:
+            g = GENERIC["break_crossing"]
+            flags.append(_flag(f"{a['id']}_breaks", g["level"],
+                               "The deadline window crosses a break.", g["text"], a["source"],
+                               g["fix"].format(breaks=", ".join(breaks))))
+        # ordering
+        for dep in a.get("depends_on", []):
+            if dep in needed_ids and not done:
+                dep_status = ev["tracking"].get(dep, {}).get("status", "not_started")
+                if dep_status != "approved" and a["id"] != "uepa":  # uepa uses its own venue rule
+                    g = GENERIC["depends_pending"]
+                    flags.append(_flag(f"{a['id']}_order", g["level"],
+                                       f"Waiting on \"{APPROVALS[dep]['name']}\".",
+                                       a["text"], a["source"],
+                                       g["fix"].format(dep=APPROVALS[dep]["name"])))
+        # specific rules
+        for r in RULES["rules"]:
+            if r["approval"] != a["id"]:
+                continue
+            out = run_rule(r, ev)
+            if out:
+                level, msg, fix = out
+                flags.append(_flag(r["id"], level, msg, r["text"], r["source"], fix))
+        if status == "returned":
+            g = GENERIC["returned"]
+            flags.append(_flag(f"{a['id']}_returned", g["level"], "Returned by the office.",
+                               a["text"], a["source"], g["fix"]))
+
+        if status == "approved":
+            verdict = "ready"
+            flags = []
+        else:
+            verdict = max((f["level"] for f in flags), key=LEVEL_RANK.get, default="ready")
+
+        if done:
+            color = "done"
+        elif deadline is None:
+            color = "none"
+        elif days_left < 0:
+            color = "red"
+        elif days_left <= 7:
+            color = "yellow"
+        else:
+            color = "green"
+
+        results.append({
+            "id": a["id"], "name": a["name"], "office": a["office"],
+            "system": a["system"], "link": a["link"],
+            "depends_on": [d for d in a.get("depends_on", []) if d in needed_ids],
+            "deadline": deadline.isoformat() if deadline else None,
+            "deadline_label": (fmt(deadline) + (f", {a['lead']['time'].replace('23:59', '11:59 PM')}" if a.get("lead", {}).get("time") else "")) if deadline else "No fixed lead time in our rulebook. Confirm with the office.",
+            "days_left": days_left, "color": color, "status": status,
+            "verdict": verdict, "verdict_label": LEVEL_LABEL[verdict], "flags": flags,
+        })
+
+    results.sort(key=lambda r: (r["deadline"] or "9999"))
+    overall = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")
+    if not event_date:
+        overall_label = "Needs info"
+    else:
+        overall_label = LEVEL_LABEL[overall]
+
+    return {
+        "event": ev,
+        "as_of": today.isoformat(),
+        "features": feats,
+        "questions": questions,
+        "approvals": results,
+        "verdict": overall if event_date else "risk",
+        "verdict_label": overall_label,
+        "counts": {k: sum(1 for r in results if r["verdict"] == k) for k in LEVEL_RANK},
+        "disclaimer": "Ready means your request meets every written rule we check. The final decision is still USG's.",
+    }
+
+
+if __name__ == "__main__":
+    demos = json.loads((BASE / "demo_events.json").read_text())
+    for d in demos:
+        r = check(d)
+        print(f"\n=== {d['name']}  ->  {r['verdict_label']}")
+        for a in r["approvals"]:
+            print(f"  [{a['verdict_label']:16}] {a['name']:45} {a['deadline_label']}")
+            for f in a["flags"]:
+                print(f"       - {f['message']}  FIX: {f['fix']}")

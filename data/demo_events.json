@@ -1,0 +1,59 @@
+[
+  {
+    "id": "ready",
+    "name": "Spring Career Mixer",
+    "as_of": "2026-11-15",
+    "date": "2027-03-04",
+    "venue": {"name": "Ronald Tutor Campus Center 450", "on_campus": true, "confirmed": true},
+    "attendance": 80,
+    "food": {"served": true, "sold": false, "vendor": "USC Hospitality", "vendor_approved": true},
+    "dancing": false,
+    "ticket_sales": false,
+    "funding_source": "USG",
+    "amount_requested": 1200,
+    "budget_lines": [
+      {"item": "Room rental", "category": "venue", "amount": 400, "quote_attached": true},
+      {"item": "Catering (USC Hospitality)", "category": "food", "amount": 800, "quote_attached": true}
+    ],
+    "org": {"funded_events_this_semester": 1, "usg_received_this_year": 1500},
+    "tracking": {}
+  },
+  {
+    "id": "at_risk",
+    "name": "Hackathon Kickoff Night",
+    "as_of": "2026-11-15",
+    "date": "2027-02-03",
+    "venue": {"name": "Seeley G. Mudd 101", "on_campus": true, "confirmed": false},
+    "attendance": 150,
+    "food": {"served": true, "sold": false, "vendor": "USC Hospitality", "vendor_approved": true},
+    "dancing": false,
+    "ticket_sales": false,
+    "funding_source": "USG",
+    "amount_requested": 2800,
+    "budget_lines": [
+      {"item": "Room rental", "category": "venue", "amount": 1200, "quote_attached": true},
+      {"item": "Catering", "category": "food", "amount": 1600, "quote_attached": true}
+    ],
+    "org": {"funded_events_this_semester": 2, "usg_received_this_year": 4200, "usg_funds_low": true},
+    "tracking": {}
+  },
+  {
+    "id": "blockers",
+    "name": "Diwali Night",
+    "as_of": "2026-11-15",
+    "date": "2026-12-12",
+    "venue": {"name": "TCC Grand Ballroom", "on_campus": true, "confirmed": false},
+    "attendance": 300,
+    "food": {"served": true, "sold": true, "vendor": "Local restaurant", "vendor_approved": false},
+    "dancing": true,
+    "ticket_sales": true,
+    "funding_source": "USG",
+    "amount_requested": 3500,
+    "budget_lines": [
+      {"item": "Grand Ballroom", "category": "venue", "amount": 4500, "quote_attached": false},
+      {"item": "DJ", "category": "entertainment", "amount": 600, "quote_attached": false}
+    ],
+    "org": {"funded_events_this_semester": 4, "usg_received_this_year": 5200},
+    "tracking": {}
+  }
+]
