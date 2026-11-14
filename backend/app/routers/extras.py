@@ -42,6 +42,10 @@ def _tokens(text: str) -> list[str]:
             continue
         if len(w) > 4 and w.endswith("s") and not w.endswith("ss"):
             w = w[:-1]  # t-shirts -> t-shirt, quotes -> quote
+        for suf in ("ing", "ic", "ed"):  # alcoholic -> alcohol, funded -> fund
+            if len(w) > len(suf) + 3 and w.endswith(suf):
+                w = w[: -len(suf)]
+                break
         out.append(w)
     return out
 
@@ -71,15 +75,17 @@ def load_chunks() -> list[dict]:
         def flush():
             text = "\n".join(buf).strip()
             if len(text) > 40:
-                chunks.append({"title": title, "source": source, "heading": heading, "text": text[:1500]})
+                chunks.append({"title": title, "source": source, "heading": heading, "text": text})
             buf.clear()
 
         for line in body.splitlines():
+            size = sum(len(b) for b in buf)
             if line.startswith("#"):
                 flush()
                 heading = line.lstrip("#").strip()
-            elif not line.strip() and sum(len(b) for b in buf) > 600:
-                flush()
+            elif (not line.strip() and size > 500) or size > 900:
+                flush()  # keep chunks small so nothing is cut off and search stays precise
+                buf.append(line)
             else:
                 buf.append(line)
         flush()
