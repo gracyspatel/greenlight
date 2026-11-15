@@ -1,0 +1,273 @@
+{
+  "_note": "SYNTHETIC DEMO DATA. NOT USC's or USG's real approved vendor list. Names are real food places at or near USC Village (as reported in 2025) and USC Hospitality's Catering2Go venues; every approval status, permit flag and price below is invented so the demo has approved and unapproved cases. Before real use, replace with the USG Vendor List (usgfunds@usc.edu) and confirm caterers with USC Purchasing Services (213-740-2281).",
+  "synthetic": true,
+  "generated_on": "2026-11-14",
+  "fields": {
+    "usg_vendor": "invented: on the (pretend) USG vendor list",
+    "catering_approved": "invented: approved to cater USC events",
+    "health_permit": "invented: health permit on file",
+    "insurance": "invented: certificate of insurance on file",
+    "per_person": "invented typical catering cost per person, USD (USG food cap is $35)",
+    "aliases": "other ways people write the name (lowercase, no punctuation)"
+  },
+  "vendors": [
+    {
+      "name": "USC Hospitality",
+      "location": "On campus",
+      "type": "USC Hospitality",
+      "cuisine": "Catering (Catering2Go, Private Events & Conferences)",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 20,
+      "notes": "USC's own caterer (real); the flags here are still demo values.",
+      "aliases": [
+        "usc hospitality",
+        "catering2go",
+        "usc catering"
+      ]
+    },
+    {
+      "name": "USC Village Dining Hall",
+      "location": "USC Village",
+      "type": "USC Hospitality",
+      "cuisine": "California-fresh, all-you-care-to-eat",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 18,
+      "notes": "Run by USC Hospitality.",
+      "aliases": [
+        "village dining hall"
+      ]
+    },
+    {
+      "name": "Cafe Dulce",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Cafe, pastries, coffee",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 14,
+      "notes": "Good for morning events.",
+      "aliases": [
+        "dulce"
+      ]
+    },
+    {
+      "name": "CAVA",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Mediterranean bowls",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 16,
+      "notes": "Catering trays available.",
+      "aliases": []
+    },
+    {
+      "name": "Superette",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Boba, Asian snacks",
+      "usg_vendor": false,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": false,
+      "per_person": 9,
+      "notes": "Demo case: approved caterer but NOT on the USG list, and no insurance on file.",
+      "aliases": []
+    },
+    {
+      "name": "The Baked Bear",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Ice cream sandwiches, desserts",
+      "usg_vendor": false,
+      "catering_approved": false,
+      "health_permit": true,
+      "insurance": false,
+      "per_person": 8,
+      "notes": "Demo case: not approved for catering yet.",
+      "aliases": [
+        "baked bear"
+      ]
+    },
+    {
+      "name": "Barilla",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Italian, pasta",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 22,
+      "notes": "",
+      "aliases": []
+    },
+    {
+      "name": "The Butcher, The Baker, The Cappuccino Maker",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "American cafe, sandwiches",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 19,
+      "notes": "",
+      "aliases": [
+        "bbcm",
+        "the butcher the baker"
+      ]
+    },
+    {
+      "name": "Rock & Reilly's",
+      "location": "USC Village",
+      "type": "restaurant/bar",
+      "cuisine": "Irish pub food",
+      "usg_vendor": false,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 38,
+      "notes": "Demo case: over the $35/person USG food cap; USG never pays for alcohol.",
+      "aliases": [
+        "rock and reillys",
+        "rock reillys"
+      ]
+    },
+    {
+      "name": "Sunlife Organics",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Smoothies, acai bowls",
+      "usg_vendor": true,
+      "catering_approved": false,
+      "health_permit": true,
+      "insurance": false,
+      "per_person": 13,
+      "notes": "Demo case: on the USG list, but not approved to cater and no certificate of insurance on file.",
+      "aliases": [
+        "sunlife"
+      ]
+    },
+    {
+      "name": "Starbucks (USC Village)",
+      "location": "USC Village",
+      "type": "restaurant",
+      "cuisine": "Coffee, pastries",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 10,
+      "notes": "",
+      "aliases": [
+        "starbucks"
+      ]
+    },
+    {
+      "name": "Trader Joe's",
+      "location": "USC Village",
+      "type": "grocery",
+      "cuisine": "Groceries, snacks",
+      "usg_vendor": false,
+      "catering_approved": false,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 6,
+      "notes": "Demo case: a grocery store, not a caterer. USG won't fund raw food that needs refrigeration or prep.",
+      "aliases": [
+        "trader joes"
+      ]
+    },
+    {
+      "name": "Panda Express (Catering2Go)",
+      "location": "On campus",
+      "type": "USC Hospitality",
+      "cuisine": "Chinese-American",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 15,
+      "notes": "Catering2Go is real (USC Hospitality); the flags here are still demo values. 48 business hours notice, $200 minimum on weekdays.",
+      "aliases": [
+        "panda express",
+        "panda"
+      ]
+    },
+    {
+      "name": "Seeds Marketplace (Catering2Go)",
+      "location": "On campus",
+      "type": "USC Hospitality",
+      "cuisine": "Sandwiches, salads, snacks",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 14,
+      "notes": "Catering2Go is real (USC Hospitality); the flags here are still demo values.",
+      "aliases": [
+        "seeds marketplace",
+        "seeds"
+      ]
+    },
+    {
+      "name": "Taco Taco (Catering2Go)",
+      "location": "On campus",
+      "type": "USC Hospitality",
+      "cuisine": "Mexican",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 15,
+      "notes": "Catering2Go is real (USC Hospitality); the flags here are still demo values.",
+      "aliases": [
+        "taco taco"
+      ]
+    },
+    {
+      "name": "University Club (Catering2Go)",
+      "location": "On campus",
+      "type": "USC Hospitality",
+      "cuisine": "Full-service catering",
+      "usg_vendor": true,
+      "catering_approved": true,
+      "health_permit": true,
+      "insurance": true,
+      "per_person": 30,
+      "notes": "Catering2Go is real (USC Hospitality); the flags here are still demo values.",
+      "aliases": [
+        "university club",
+        "u club",
+        "amy king dundon berchtold university club"
+      ]
+    },
+    {
+      "name": "Local restaurant",
+      "location": "Off campus",
+      "type": "restaurant",
+      "cuisine": "Varies",
+      "usg_vendor": false,
+      "catering_approved": false,
+      "health_permit": false,
+      "insurance": false,
+      "per_person": 20,
+      "notes": "Placeholder used by the Diwali Night demo: not approved.",
+      "aliases": [
+        "local restaurant",
+        "a local restaurant"
+      ]
+    }
+  ]
+}

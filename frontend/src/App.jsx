@@ -12,6 +12,7 @@ import Timeline from './components/timeline/Timeline'
 import VerdictCards from './components/verdict/VerdictCards'
 import FixPanel from './components/fixloop/FixPanel'
 import DateCalendar from './components/calendar/DateCalendar'
+import VendorPicker from './components/vendors/VendorPicker'
 import Tracker from './components/tracker/Tracker'
 import PackView from './components/pack/PackView'
 import ReviewerView from './components/reviewer/ReviewerView'
@@ -142,6 +143,9 @@ export default function App() {
                     </div>
                   )}
                   <DateCalendar event={event} setEvent={setEvent} />
+                  {(event.food?.served || event.food?.sold) && (
+                    <VendorPicker event={event} setEvent={setEvent} result={result} />
+                  )}
                   {/* always shown, so a fix can be undone or a feature added back */}
                   <FixPanel event={event} setEvent={setEvent} result={result} />
                 </>

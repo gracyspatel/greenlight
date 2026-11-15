@@ -58,6 +58,18 @@ def calendar(body: CalendarIn):
     return out
 
 
+@router.get("/vendors")
+def vendors():
+    """The food vendor list the rules check against. SYNTHETIC demo data until the team
+    gets USG's real list; `synthetic` and `note` say so, and the UI must show it."""
+    keep = ("name", "location", "type", "cuisine", "usg_vendor", "catering_approved",
+            "health_permit", "insurance", "per_person", "notes")
+    return {"synthetic": engine.VENDOR_DATA.get("synthetic", True),
+            "note": engine.VENDOR_DATA.get("_note", ""),
+            "food_cap": 35,
+            "vendors": [{k: v.get(k) for k in keep} for v in engine.VENDORS]}
+
+
 @router.get("/demo")
 def list_demos():
     return [{"id": d["id"], "name": d["name"]} for d in DEMOS]

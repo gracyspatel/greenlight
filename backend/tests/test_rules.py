@@ -28,6 +28,10 @@ def flags(ev):
 
 
 # rule id -> (event that FAILS the rule, expected level, event that PASSES it)
+def FOOD(amount, item="Catering"):
+    return [{"item": item, "category": "food", "amount": amount, "quote_attached": True}]
+
+
 CASES = {
     "usg_event_cap": (base(org__funded_events_this_semester=4), "reject",
                       base(org__funded_events_this_semester=3)),
@@ -36,8 +40,17 @@ CASES = {
     "usg_venue_cap": (base(budget_lines=[{"item": "Hall", "category": "venue", "amount": 4001, "quote_attached": True}]),
                       "reject",
                       base(budget_lines=[{"item": "Hall", "category": "venue", "amount": 4000, "quote_attached": True}])),
-    "food_vendor": (base(food__sold=True, food__vendor_approved=False), "reject",
-                    base(food__sold=True, food__vendor_approved=True)),
+    # selling food from a vendor that isn't an approved caterer (the list decides for listed vendors)
+    "food_vendor": (base(food__sold=True, food__vendor="Local restaurant"), "reject",
+                    base(food__sold=True, food__vendor="CAVA")),
+    "usg_food_vendor_list": (base(food__vendor="Superette", budget_lines=FOOD(500)), "reject",
+                             base(food__vendor="CAVA", budget_lines=FOOD(500))),
+    "usg_food_cap": (base(food__vendor="CAVA", budget_lines=FOOD(80 * 36)), "reject",   # 80 people
+                     base(food__vendor="CAVA", budget_lines=FOOD(80 * 35))),
+    "usg_vendor_docs": (base(food__vendor="Sunlife Organics", budget_lines=FOOD(300)), "risk",
+                        base(food__vendor="Cafe Dulce", budget_lines=FOOD(300))),
+    "catering_vendor": (base(food__vendor="The Baked Bear", budget_lines=[]), "risk",
+                        base(food__vendor="Cafe Dulce", budget_lines=[])),
     "uepa_needs_venue": (base(venue__confirmed=False), "risk", base(venue__confirmed=True)),
     "disc_other_funding": (base(org__other_university_funding=True), "warning", base()),
     "disc_past_misuse": (base(org__past_misuse=True), "warning", base()),
@@ -218,7 +231,8 @@ def test_empty_event_does_not_crash():
 
 def test_every_rule_has_source_and_known_check():
     known = {"usg_event_cap", "usg_annual_cap", "usg_venue_cap", "vendor_quotes",
-             "food_vendor", "venue_confirmed", "flag"}
+             "food_vendor", "venue_confirmed", "flag",
+             "usg_vendor_list", "food_cap", "vendor_docs", "catering_vendor"}
     for r in engine.RULES["rules"]:
         assert r["source"].startswith("https://") and r["text"]
         assert r["check"] in known
@@ -335,3 +349,46 @@ def test_quoted_rule_text_is_only_usc_words():
         assert "Greenlight" not in a["text"], a["id"]
     f = flags(base(date="2026-12-01"))["venue_request_deadline"]
     assert "Greenlight" not in f["rule_text"] and "five weeks" in f["fix"]
+
+
+# ---------------------------------------------------------------- vendor list
+def test_vendor_names_match_loosely():
+    assert engine.find_vendor("Lunch from CAVA")["name"] == "CAVA"
+    assert engine.find_vendor("dulce")["name"] == "Cafe Dulce"
+    assert engine.find_vendor("Rock and Reilly's")["name"] == "Rock & Reilly's"
+    assert engine.find_vendor("Panda Express catering")["name"] == "Panda Express (Catering2Go)"
+    assert engine.find_vendor("a local Chinese restaurant") is None
+
+
+def test_vendor_found_in_budget_line_when_not_named():
+    ev = base(food__vendor="", budget_lines=FOOD(400, item="Pizza from Superette"))
+    assert "usg_food_vendor_list" in flags(ev)
+    assert engine.check(ev)["event"]["food"]["vendor_match"] == "Superette"
+
+
+def test_unknown_vendor_is_not_on_the_list():
+    f = flags(base(food__vendor="Mom's Kitchen", budget_lines=FOOD(300)))
+    assert f["usg_food_vendor_list"]["level"] == "reject" and "our vendor list" in f["usg_food_vendor_list"]["message"]
+
+
+def test_no_vendor_named_is_a_risk():
+    f = flags(base(food__vendor="", budget_lines=FOOD(300, item="Snacks")))
+    assert f["usg_food_vendor_list"]["level"] == "risk"
+
+
+def test_vendor_rules_skip_events_without_usg_food_lines():
+    # food served but USG isn't paying for it: the USG vendor rules don't apply
+    f = flags(base(food__vendor="Superette", budget_lines=[{"item": "Room", "category": "venue", "amount": 100, "quote_attached": True}]))
+    assert not {"usg_food_vendor_list", "usg_food_cap", "usg_vendor_docs"} & set(f)
+
+
+def test_list_overrides_the_checkbox():
+    ev = engine.normalize(base(food__vendor="The Baked Bear", food__vendor_approved=True))
+    assert ev["food"]["vendor_approved"] is False   # the list says it can't cater
+
+
+def test_fix_suggests_vendors_that_pass():
+    sug = engine.suggest_vendors()
+    for name in sug.split(", "):
+        v = engine.find_vendor(name)
+        assert v["usg_vendor"] and v["catering_approved"] and v["per_person"] <= 35

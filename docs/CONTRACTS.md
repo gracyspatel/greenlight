@@ -74,3 +74,10 @@ adds `step` and `order` (1, 2, 3… as shown). Inside an approval, `flags` are w
 
 Optional extra fields (safe to ignore): `/pack` rows add `name, deadline_label, by` ("ai"|"template");
 `/reviewer/queue` rows add `by, source` ("submitted"|"demo"), `counts, attendance, venue`; `/ask` adds `by`.
+
+**Food vendors:** `GET /api/vendors` → `{synthetic, note, food_cap, vendors:[{name, location, type, cuisine,
+usg_vendor, catering_approved, health_permit, insurance, per_person, notes}]}`. The list is SYNTHETIC demo data
+(`data/demo_vendors.json`) until we get USG's real list, and the UI must say so. The engine matches `food.vendor`
+(or a food budget line's item) to the list and adds `food.vendor_match` (the list name, or null). For a listed
+vendor, `food.vendor_approved` comes from the list. Rules: `usg_food_vendor_list`, `usg_food_cap` ($35/person),
+`usg_vendor_docs`, `catering_vendor`.

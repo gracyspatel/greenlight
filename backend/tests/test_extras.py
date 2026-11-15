@@ -119,3 +119,9 @@ def test_reviewer_queue_dedupes_resubmits_and_hides_the_matching_demo():
     rows = [r for r in client.get("/api/reviewer/queue").json() if r["name"] == DEMOS["blockers"]["name"]]
     assert len(rows) == 1 and rows[0]["source"] == "submitted"
     extras.SUBMITTED.clear()
+
+
+def test_vendors_endpoint_is_labeled_synthetic():
+    r = client.get("/api/vendors").json()
+    assert r["synthetic"] is True and "SYNTHETIC" in r["note"]
+    assert any(v["name"] == "CAVA" for v in r["vendors"]) and r["food_cap"] == 35

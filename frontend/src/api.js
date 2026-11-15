@@ -20,6 +20,7 @@ export const api = {
   check: event => (MOCK ? Promise.resolve(mockChecks[event.id] || mockChecks.blockers) : post('/check', event)),
   extract: (text, event) => (MOCK ? Promise.resolve({ event: mockDemos[2], questions: [] }) : post('/extract', { text, event })),
   explain: (flag, event) => (MOCK ? Promise.resolve({ reason: flag.message, fix: flag.fix, quote: flag.rule_text }) : post('/explain', { flag, event })),
+  vendors: () => (MOCK ? Promise.resolve({ synthetic: true, vendors: [] }) : get('/vendors')),
   calendar: (event, start, days = 42) => (MOCK ? Promise.resolve([]) : post('/calendar', { event, start, days })),
   pack: result => (MOCK ? Promise.resolve(mockPack(result)) : post('/pack', result)),
   reviewerQueue: () => (MOCK ? Promise.resolve([]) : get('/reviewer/queue')),

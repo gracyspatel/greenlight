@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import re
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parents[2] / "data"
@@ -15,6 +16,10 @@ CAL = json.loads((BASE / "calendar.json").read_text())
 
 APPROVALS = {a["id"]: a for a in RULES["approvals"]}
 GENERIC = RULES["generic"]
+# Food vendor list. SYNTHETIC demo data (see its _note) until the team gets USG's real list.
+_VF = BASE / "demo_vendors.json"
+VENDOR_DATA = json.loads(_VF.read_text()) if _VF.exists() else {"vendors": []}
+VENDORS = VENDOR_DATA["vendors"]
 # warning = a risk factor the club can't change (funds running low, a break in the window...).
 # It is shown, but it never blocks Ready.
 LEVEL_RANK = {"ready": 0, "warning": 1, "risk": 2, "reject": 3}
@@ -113,6 +118,46 @@ def earliest_event_date(approval: dict, today: dt.date):
 
 
 # ---------------------------------------------------------------- normalize
+# ---------------------------------------------------------------- vendors
+def _vnorm(s: str) -> str:
+    s = (s or "").lower().replace("&", " and ").replace("'", "").replace("’", "")
+    s = re.sub(r"\(.*?\)", " ", s)                     # "(Catering2Go)"
+    s = re.sub(r"[^a-z0-9 ]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def find_vendor(text: str):
+    """The vendor-list entry named in `text` (longest name/alias that appears), or None."""
+    t = f" {_vnorm(text)} "
+    if not t.strip():
+        return None
+    best, best_len = None, 0
+    for v in VENDORS:
+        for cand in [_vnorm(v["name"])] + [_vnorm(a) for a in v.get("aliases", [])]:
+            if cand and f" {cand} " in t and len(cand) > best_len:
+                best, best_len = v, len(cand)
+    return best
+
+
+def food_vendor_of(ev: dict):
+    """(name as written, list entry or None). Uses food.vendor, else a food budget line's item."""
+    named = (ev["food"].get("vendor") or "").strip()
+    if named:
+        return named, find_vendor(named)
+    for l in ev["budget_lines"]:
+        if l["category"] == "food":
+            v = find_vendor(l["item"])
+            if v:
+                return v["name"], v
+    return "", None
+
+
+def suggest_vendors(n: int = 3, cap: float = 35) -> str:
+    ok = [v["name"] for v in VENDORS if v["usg_vendor"] and v["catering_approved"] and v["health_permit"]
+          and v["insurance"] and v.get("per_person", 0) <= cap and v.get("location") != "Off campus"]
+    return ", ".join(ok[:n])
+
+
 def normalize(ev: dict) -> dict:
     ev = dict(ev or {})
     ev.setdefault("name", "Untitled event")
@@ -147,6 +192,12 @@ def normalize(ev: dict) -> dict:
     for k in ("other_university_funding", "past_misuse", "usg_funds_low"):
         org[k] = bool(org.get(k, False))
     ev["org"] = org
+    # vendor list lookup: a listed vendor's approval comes from the list, not from a checkbox
+    named, v = food_vendor_of(ev)
+    ev["food"]["vendor_match"] = v["name"] if v else None
+    if v and ev["food"]["served"]:
+        ev["food"]["vendor"] = named
+        ev["food"]["vendor_approved"] = bool(v["catering_approved"])
     # {approval_id: {"status": ..., "submitted_on": "YYYY-MM-DD" (optional)}}
     ev["tracking"] = {k: dict(v) if isinstance(v, dict) else {} for k, v in (ev.get("tracking") or {}).items()}
     return ev
@@ -213,12 +264,52 @@ def run_rule(rule: dict, ev: dict):
         if f["sold"] and not f["vendor_approved"]:
             v = f["vendor"] or "your vendor"
             return rule["level"], f"Food is being sold, and {v} isn't marked as an approved vendor.", rule["fix"]
+    elif c in ("usg_vendor_list", "food_cap", "vendor_docs", "catering_vendor"):
+        return _vendor_rule(c, rule, ev)
     elif c == "venue_confirmed":
         if not ev["venue"].get("confirmed"):
             return rule["level"], "The venue isn't confirmed yet.", rule["fix"]
     elif c == "flag":
         if org.get(p["field"]):
             return rule["level"], rule["text"], rule["fix"]
+    return None
+
+
+def _vendor_rule(c: str, rule: dict, ev: dict):
+    """Food vendor checks against the vendor list (demo_vendors.json)."""
+    food, p = ev["food"], rule["params"]
+    if not food["served"]:
+        return None
+    named, v = food_vendor_of(ev)
+    food_lines = [l for l in ev["budget_lines"] if l["category"] == "food"]
+    usg_pays_food = bool(food_lines)  # USG rules apply to the food it is asked to pay for
+    who = named or "your food vendor"
+    sug = suggest_vendors()
+
+    if c == "usg_vendor_list" and usg_pays_food:
+        if not named:
+            return "risk", "No food vendor is named, so we can't check the USG vendor list.", \
+                f"Name the vendor (e.g. {sug}) so we can check it."
+        if not v or not v["usg_vendor"]:
+            why = "isn't on the USG vendor list" if v else "isn't on our vendor list"
+            return rule["level"], f"{who} {why}.", rule["fix"].format(vendor=who, suggest=sug)
+    elif c == "food_cap" and usg_pays_food and ev.get("attendance"):
+        total = sum(l["amount"] for l in food_lines)
+        pp = total / float(ev["attendance"])
+        if pp > p["cap"]:
+            most = p["cap"] * float(ev["attendance"])
+            return rule["level"], f"Food is ${pp:,.2f} per person, over the ${p['cap']:,.0f} maximum.", \
+                rule["fix"].format(pp=pp, most=most, attendance=ev["attendance"])
+    elif c == "vendor_docs" and usg_pays_food and v and v["usg_vendor"]:
+        missing = [d for d, ok in (("health permit", v["health_permit"]),
+                                   ("certificate of insurance", v["insurance"])) if not ok]
+        if missing:
+            return rule["level"], f"{v['name']} has no {' or '.join(missing)} on file.", \
+                rule["fix"].format(vendor=v["name"], missing=" and ".join(missing))
+    elif c == "catering_vendor" and not food["sold"] and named:  # sold food: the food_vendor rule
+        if (v and not v["catering_approved"]) or (not v and not food["vendor_approved"]):
+            return rule["level"], f"{who} isn't on the approved caterer list.", \
+                rule["fix"].format(vendor=who, suggest=sug)
     return None
 
 

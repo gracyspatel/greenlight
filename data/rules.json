@@ -239,6 +239,48 @@
       "text": "Applications are reviewed on a first come first serve basis until all funds are exhausted.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Submit as early as you can and check USG Live Updates. Have a backup plan for funding."
+    },
+    {
+      "id": "usg_food_vendor_list",
+      "approval": "usg_funding",
+      "check": "usg_vendor_list",
+      "params": {},
+      "level": "reject",
+      "text": "Applicants must verify vendor status before submitting their application. We will not accept a vendor not on the list.",
+      "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
+      "fix": "Pick a vendor on the USG vendor list, for example {suggest}. (Demo vendor list: confirm with usgfunds@usc.edu.)"
+    },
+    {
+      "id": "usg_food_cap",
+      "approval": "usg_funding",
+      "check": "food_cap",
+      "params": {
+        "cap": 35
+      },
+      "level": "reject",
+      "text": "Food requests should not exceed a $35 per person maximum based on expected attendance.",
+      "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
+      "fix": "Keep food at ${most:,.0f} or less for {attendance} people, or pick a cheaper vendor."
+    },
+    {
+      "id": "usg_vendor_docs",
+      "approval": "usg_funding",
+      "check": "vendor_docs",
+      "params": {},
+      "level": "risk",
+      "text": "RSOs must provide a Health Permit and Certificate of Insurance from the Food Vendor.",
+      "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
+      "fix": "Ask {vendor} for its {missing}, then attach it to the USG application."
+    },
+    {
+      "id": "catering_vendor",
+      "approval": "catering",
+      "check": "catering_vendor",
+      "params": {},
+      "level": "risk",
+      "text": "Many outside food vendors are approved by the University for catering. To find out if your preferred caterer is approved please contact Purchasing Services at 213-740-2281.",
+      "source": "https://trojanevents.usc.edu/frequently-asked-questions/",
+      "fix": "Pick an approved caterer, for example {suggest}, or ask Purchasing Services (213-740-2281) about {vendor}."
     }
   ],
   "generic": {
