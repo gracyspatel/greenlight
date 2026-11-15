@@ -197,3 +197,24 @@ def test_missing_facts_are_never_ready():
     # off campus: no venue/UEPA flags, so only the missing facts stand between it and Ready
     r = engine.check({**ev, "venue": {"on_campus": False}})
     assert r["questions"] and r["verdict_label"] == "Needs info" and r["verdict"] == "risk"
+
+
+def test_approvals_come_in_the_order_they_are_done():
+    ids = [a["id"] for a in engine.check(DEMOS["blockers"])["approvals"]]
+    # the USG application needs the venue confirmation, the food form and the UEPA ID first
+    assert ids.index("venue_request") < ids.index("catering") < ids.index("uepa") < ids.index("usg_funding")
+    assert ids.index("social_dance_start") < ids.index("social_dance_form")
+    assert ids.index("fundraising_ca") < ids.index("fundraising_bh")
+    assert ids[0] == "social_dance_start"  # longest lead time: start it first
+    orders = [a["order"] for a in engine.check(DEMOS["blockers"])["approvals"]]
+    assert orders == list(range(1, len(orders) + 1))
+
+
+def test_worst_flag_first_inside_an_approval():
+    for a in engine.check(DEMOS["blockers"])["approvals"]:
+        levels = [engine.LEVEL_RANK[f["level"]] for f in a["flags"]]
+        assert levels == sorted(levels, reverse=True)
+
+
+def test_every_approval_has_a_step():
+    assert all(isinstance(a.get("step"), int) for a in engine.RULES["approvals"])
