@@ -287,8 +287,11 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
         else:
             color = "green"
 
+        # most serious problem first inside each approval (stable: keeps rule order otherwise)
+        flags.sort(key=lambda f: -LEVEL_RANK[f["level"]])
+
         results.append({
-            "id": a["id"], "name": a["name"], "office": a["office"],
+            "id": a["id"], "step": a.get("step", 99), "name": a["name"], "office": a["office"],
             "system": a["system"], "link": a["link"],
             "depends_on": [d for d in a.get("depends_on", []) if d in needed_ids],
             "deadline": deadline.isoformat() if deadline else None,
@@ -297,7 +300,10 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
             "verdict": verdict, "verdict_label": LEVEL_LABEL[verdict], "flags": flags,
         })
 
-    results.sort(key=lambda r: (r["deadline"] or "9999"))
+    # the order an officer does things in (rules.json "step"), then by deadline
+    results.sort(key=lambda r: (r["step"], r["deadline"] or "9999"))
+    for i, r in enumerate(results, 1):
+        r["order"] = i  # 1, 2, 3... as shown to the user
     overall = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")
     # Missing facts (date, venue, attendance, budget...) mean we can't call it Ready yet.
     needs_info = not event_date or (bool(questions) and overall == "ready")

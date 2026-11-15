@@ -19,3 +19,6 @@
 .small { font-size: 12px; }
 .btn-link { font-size: 14px; padding: 8px 12px; border-radius: 6px; background: #eef0ec; color: #1d1f1c; text-decoration: none; }
 @media (max-width: 700px) { .tr-row { flex-wrap: wrap; } .tr-row select { width: 100%; } }
+.tr-step { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; flex: none;
+  background: #eef0ec; font-size: 12px; font-weight: 700; color: #3e423b; }
+.tracker .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
