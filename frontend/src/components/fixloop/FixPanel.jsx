@@ -22,11 +22,15 @@ export default function FixPanel({ event, setEvent, result: resultProp }) {
     return () => { live = false }
   }, [event, resultProp])
 
+  // set({'a.b': 1, c: 2}) or set('a.b', 1): one edit, one re-check
   const set = (path, value) => {
     const e = structuredClone(event)
-    let o = e; const keys = path.split('.')
-    keys.slice(0, -1).forEach(k => { o[k] = o[k] || {}; o = o[k] })
-    o[keys.at(-1)] = value
+    const patch = typeof path === 'string' ? { [path]: value } : path
+    for (const [p, v] of Object.entries(patch)) {
+      let o = e; const keys = p.split('.')
+      keys.slice(0, -1).forEach(k => { o[k] = o[k] || {}; o = o[k] })
+      o[keys.at(-1)] = v
+    }
     setEvent(e)
   }
   const lines = event.budget_lines || []
@@ -92,7 +96,9 @@ export default function FixPanel({ event, setEvent, result: resultProp }) {
 
       <fieldset>
         <legend>What happens</legend>
-        <label className="check"><input type="checkbox" checked={!!event.food?.served} onChange={e => set('food.served', e.target.checked)} /> Food or drinks</label>
+        <label className="check"><input type="checkbox" checked={!!event.food?.served} onChange={e => set(e.target.checked
+          ? { 'food.served': true }
+          : { 'food.served': false, 'food.sold': false, 'food.vendor_approved': false })} /> Food or drinks</label>
         {event.food?.served && <>
           <label className="check indent"><input type="checkbox" checked={!!event.food?.sold} onChange={e => set('food.sold', e.target.checked)} /> Selling the food</label>
           <div className="grid2 indent">
