@@ -222,6 +222,12 @@ def run_rule(rule: dict, ev: dict):
     return None
 
 
+def _with_note(fix: str, approval: dict) -> str:
+    """Greenlight's own lead-time choice (rules.json lead_note) goes in the fix, never in the quote."""
+    note = approval.get("lead_note")
+    return f"{fix} ({note})" if note else fix
+
+
 def check(raw_event: dict, today: dt.date | None = None) -> dict:
     ev = normalize(raw_event)
     today = _date(ev.get("as_of")) or today or dt.date.today()
@@ -250,8 +256,8 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
             flags.append(_flag(f"{a['id']}_deadline", g["level"],
                                f"Submitted after the deadline ({(submitted_on - deadline).days} day(s) late).",
                                a["text"], a["source"],
-                               g["fix"].format(deadline=fmt(deadline),
-                                               earliest=fmt(earliest_event_date(a, today)))))
+                               _with_note(g["fix"].format(deadline=fmt(deadline),
+                                                          earliest=fmt(earliest_event_date(a, today))), a)))
         elif deadline and not done:
             if days_left < 0:
                 earliest = earliest_event_date(a, today)
@@ -259,12 +265,12 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
                 flags.append(_flag(f"{a['id']}_deadline", g["level"],
                                    f"Deadline passed {-days_left} day(s) ago.",
                                    a["text"], a["source"],
-                                   g["fix"].format(deadline=fmt(deadline), earliest=fmt(earliest))))
+                                   _with_note(g["fix"].format(deadline=fmt(deadline), earliest=fmt(earliest)), a)))
             elif days_left <= 7:
                 g = GENERIC["deadline_soon"]
                 flags.append(_flag(f"{a['id']}_deadline", g["level"],
                                    f"Due in {days_left} day(s).", a["text"], a["source"],
-                                   g["fix"].format(days=days_left, deadline=fmt(deadline))))
+                                   _with_note(g["fix"].format(days=days_left, deadline=fmt(deadline)), a)))
         if breaks and not done:
             g = GENERIC["break_crossing"]
             flags.append(_flag(f"{a['id']}_breaks", g["level"],

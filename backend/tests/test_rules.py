@@ -328,3 +328,10 @@ def test_selling_food_means_serving_food():
     ev = engine.normalize({"food": {"sold": True}})
     assert ev["food"]["served"] is True
     assert engine.check(base(food={"sold": True, "served": False}))["features"]["food"]
+
+
+def test_quoted_rule_text_is_only_usc_words():
+    for a in engine.RULES["approvals"]:
+        assert "Greenlight" not in a["text"], a["id"]
+    f = flags(base(date="2026-12-01"))["venue_request_deadline"]
+    assert "Greenlight" not in f["rule_text"] and "five weeks" in f["fix"]
