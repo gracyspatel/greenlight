@@ -3,7 +3,7 @@
 // to change it; the shell re-runs /check automatically (this IS the fix loop).
 //
 // The officer view is a 5-step flow, one thing per screen:
-//   1 Describe → 2 What you need → 3 Fix problems → 4 Submit → 5 Track
+//   1 Describe → 2 What you need → 3 Fix problems → 4 Prepare your forms → 5 Track
 // A status bar keeps the current verdict visible on every step.
 import { useEffect, useRef, useState } from 'react'
 import { api } from './api'
@@ -15,7 +15,6 @@ import DateCalendar from './components/calendar/DateCalendar'
 import VendorPicker from './components/vendors/VendorPicker'
 import Tracker from './components/tracker/Tracker'
 import PackView from './components/pack/PackView'
-import ReviewerView from './components/reviewer/ReviewerView'
 import AskBox from './components/ask/AskBox'
 import { Summary, Warnings } from './components/warnings/Warnings'
 import './shell.css'
@@ -27,15 +26,14 @@ const STEPS = [
     hint: "Every approval your event needs, its deadline, and whether it meets USC's written rules." },
   { id: 'fix', title: 'Fix problems', short: 'Fix',
     hint: 'Pick a date that works and fix each problem. We only suggest; you decide every change.' },
-  { id: 'submit', title: 'Submit your forms', short: 'Submit',
-    hint: 'Drafted text for each form, ready to copy into the right system.' },
+  { id: 'submit', title: 'Prepare your forms', short: 'Prepare forms',
+    hint: "Drafted text for each form, ready to copy into the office's own system. Greenlight doesn't submit anything for you." },
   { id: 'track', title: 'Track your approvals', short: 'Track',
     hint: 'Mark each approval as you submit it and hear back. We’ll show what’s blocking you.' },
 ]
 const ICON = { ready: '✓', risk: '!', reject: '✕' }
 
 export default function App() {
-  const [view, setView] = useState('officer')
   const [step, setStep] = useState(0)
   const [event, setEvent] = useState(null)
   const [result, setResult] = useState(null)
@@ -57,7 +55,7 @@ export default function App() {
     if (!moved.current) { moved.current = true; return }
     window.scrollTo({ top: 0, behavior: 'smooth' })
     headingRef.current?.focus({ preventScroll: true })
-  }, [step, view])
+  }, [step])
 
   const go = i => setStep(Math.max(0, Math.min(STEPS.length - 1, i)))
   const unlocked = i => i === 0 || !!result
@@ -70,16 +68,9 @@ export default function App() {
       <a href="#main" className="gl-skip">Skip to content</a>
       <header className="gl-header">
         <h1><span aria-hidden="true">🟢</span> Greenlight</h1>
-        <nav aria-label="View">
-          <button className={view === 'officer' ? 'on' : ''} aria-pressed={view === 'officer'} onClick={() => setView('officer')}>Club officer</button>
-          <button className={view === 'reviewer' ? 'on' : ''} aria-pressed={view === 'reviewer'} onClick={() => setView('reviewer')}>USG reviewer</button>
-        </nav>
       </header>
       {error && <div className="error" role="alert">{error}</div>}
 
-      {view === 'reviewer' ? (
-        <main id="main" className="single" tabIndex={-1} ref={headingRef}><ReviewerView /></main>
-      ) : (
         <>
           <nav className="gl-stepper" aria-label="Progress">
             <ol>
@@ -152,7 +143,7 @@ export default function App() {
               )}
 
               {s.id === 'submit' && result && (
-                <PackView result={result} event={event} onSubmitted={() => setView('reviewer')} />
+                <PackView result={result} event={event} />
               )}
 
               {s.id === 'track' && result && (
@@ -173,7 +164,6 @@ export default function App() {
             {!result && step === 0 && <p className="muted gl-footnote">Describe your event first to unlock the next steps.</p>}
           </main>
         </>
-      )}
       <AskBox />
     </div>
   )

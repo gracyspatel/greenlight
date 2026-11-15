@@ -1,19 +1,18 @@
-// Owner: Split B. Submission pack: drafted text per form, copy button, link to the system.
-// Unlocks only when the engine's verdict is Ready.
+// Owner: Split B. "Prepare your forms": drafted text per form, copy button, link to the office's system.
+// Nothing is submitted for the officer. Unlocks only when the engine's verdict is Ready.
 import { useEffect, useState } from 'react'
 import { api } from '../../api'
 import './pack.css'
 
-export default function PackView({ result, event, onSubmitted }) {
+export default function PackView({ result }) {
   const [drafts, setDrafts] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState('')
-  const [sent, setSent] = useState(false)
   const ready = result.verdict === 'ready' && result.verdict_label === 'Ready'
 
   // any edit to the event makes old drafts stale
-  useEffect(() => { setDrafts(null); setSent(false) }, [result])
+  useEffect(() => { setDrafts(null) }, [result])
 
   const build = async () => {
     setBusy(true); setError('')
@@ -22,16 +21,12 @@ export default function PackView({ result, event, onSubmitted }) {
   }
   const copy = d => navigator.clipboard?.writeText(d.draft)
     .then(() => { setCopied(d.approval_id); setTimeout(() => setCopied(''), 1500) }).catch(() => {})
-  const send = async () => {
-    try { await api.submitToReviewer(event); setSent(true); onSubmitted?.() }
-    catch { setError("Couldn't send to the reviewer queue.") }
-  }
 
   if (!ready) {
     const n = (result.counts?.reject || 0) + (result.counts?.risk || 0)
     return (
       <div className="card pack locked">
-        <h2>🔒 Submission pack</h2>
+        <h2>🔒 Your forms</h2>
         <p className="muted">
           Unlocks when the verdict is <b>Ready</b>. {n > 0 ? `Fix the ${n} flagged approval(s) above first.` : 'Answer the open questions first.'}
         </p>
@@ -42,8 +37,8 @@ export default function PackView({ result, event, onSubmitted }) {
   return (
     <div className="card pack">
       <div className="pk-head">
-        <h2>Submission pack</h2>
-        {!drafts && <button onClick={build} disabled={busy}>{busy ? 'Drafting…' : 'Build my submission pack'}</button>}
+        <h2>Your forms</h2>
+        {!drafts && <button onClick={build} disabled={busy}>{busy ? 'Drafting…' : 'Draft my forms'}</button>}
       </div>
       {error && <div className="error">{error}</div>}
       {!drafts && !busy && <p className="muted">Drafted text for every form, ready to paste. Fill in the [bracketed] parts.</p>}
@@ -62,10 +57,9 @@ export default function PackView({ result, event, onSubmitted }) {
         </details>
       ))}
       {drafts && (
-        <div className="pk-send">
-          <button onClick={send} disabled={sent}>{sent ? 'Sent ✓' : 'Send to USG reviewer queue →'}</button>
-          <small className="muted">Drafts use only your event's facts. Check them before you submit.</small>
-        </div>
+        <p className="muted pk-send">
+          Drafts use only your event's facts. Check them, then submit each one yourself in the office's system.
+        </p>
       )}
     </div>
   )

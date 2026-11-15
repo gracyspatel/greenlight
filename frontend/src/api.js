@@ -23,7 +23,5 @@ export const api = {
   vendors: () => (MOCK ? Promise.resolve({ synthetic: true, vendors: [] }) : get('/vendors')),
   calendar: (event, start, days = 42) => (MOCK ? Promise.resolve([]) : post('/calendar', { event, start, days })),
   pack: result => (MOCK ? Promise.resolve(mockPack(result)) : post('/pack', result)),
-  reviewerQueue: () => (MOCK ? Promise.resolve([]) : get('/reviewer/queue')),
-  submitToReviewer: event => (MOCK ? Promise.resolve({ ok: true }) : post('/reviewer/submit', { event })),
   ask: question => (MOCK ? Promise.resolve({ answer: 'Mock mode: no answer.', citations: [] }) : post('/ask', { question })),
 }
