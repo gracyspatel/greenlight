@@ -239,6 +239,15 @@ def _no(pattern: str, text: str) -> bool:
     return bool(re.search(r"\b(no|not|without|won'?t|don'?t|isn'?t|aren'?t|never)\b[^.,;]{0,25}(" + pattern + ")", text, re.I))
 
 
+# food and drink words (singular or plural), for "food served" and "selling food"
+FOOD = (r"food|catering|catered|cater|pizzas?|dinners?|lunch(?:es)?|breakfast|brunch|snacks?|refreshments?|meals?|"
+        r"boba|restaurant|popcorn|cookies?|baked goods|cupcakes?|cakes?|brownies?|donuts?|doughnuts?|pastr(?:y|ies)|"
+        r"coffee|tea|drinks?|desserts?|tacos?|bbq|barbecue|ice cream|food trucks?|plates|bake sale")
+_SELLS_FOOD = rf"\bsell\w*\s+(?:[\w']+\s+){{0,2}}(?:{FOOD})\b"
+# a date at the end of the name: 'Bake sale Jan 20' -> 'Bake sale'
+_DATE_IN_NAME = re.compile(rf"\s+(?:{_MON}\s*\d|\d{{1,2}}/\d|20\d\d-\d|(?:next|this)\s+\w+day\b|tomorrow\b|tonight\b).*$", re.I)
+
+
 def rule_extract(text: str, today: dt.date, question: str | None = None) -> dict:
     """Best-effort extraction with plain regex. Only sets what it actually finds."""
     t = text.strip()
@@ -248,7 +257,9 @@ def rule_extract(text: str, today: dt.date, question: str | None = None) -> dict
     # name: 'Diwali Night on Dec 12...' -> text before the first ' on|at|in|is ' or comma
     m = re.match(r"\s*(?:our |the |a |an )?([A-Z][\w'&\- ]{2,40}?)(?=\s+(?:on|at|in|is|will|this|next)\b|[,.:(])", t)
     if m and not question:
-        ev["name"] = m[1].strip()
+        name = _DATE_IN_NAME.sub("", m[1].strip())
+        if name:
+            ev["name"] = name
 
     dates = find_dates(t, today)
     if dates:
@@ -285,11 +296,12 @@ def rule_extract(text: str, today: dt.date, question: str | None = None) -> dict
         ev["dancing"] = not _no(r"danc", low)
     if _yes(r"ticket|entry fee|admission|sell|selling|charge \$|fundrais", low):
         ev["ticket_sales"] = not _no(r"ticket|sell|charg|admission", low) or _yes(r"sell(?:ing)? tickets", low)
-    if _yes(r"food|catering|cater|pizza|dinner|lunch|snack|refreshment|meal|boba|restaurant", low):
+    if _yes(rf"\b(?:{FOOD})\b", low):
         food = ev.setdefault("food", {})
         food["served"] = True
-        food["sold"] = _yes(r"sell(?:ing)?\s+(?:the\s+)?(?:food|plates|meals|snacks)|food sales|food (?:for|at) \$|sell[^.]{0,30}food", low) \
-            and not _yes(r"free food|food (?:is|will be) free", low)
+        food["sold"] = (_yes(_SELLS_FOOD + rf"|\bbake sale\b|\bfood sales?\b|\b(?:{FOOD})\s+(?:for|at)\s+\$|sell[^.]{{0,30}}\bfood\b", low)
+                        and not _no(_SELLS_FOOD, low)  # 'not selling food'
+                        and not _yes(r"free food|food (?:is|will be) free", low))
         if _yes(r"usc hospitality", low):
             food["vendor"], food["vendor_approved"] = "USC Hospitality", True
         else:
@@ -310,15 +322,21 @@ def rule_extract(text: str, today: dt.date, question: str | None = None) -> dict
     amounts = find_amounts(t)
     for s, e, v in amounts:
         before = low[max(0, s - 40):s]
-        if re.search(r"(ask|request|need|want|apply|applying)\w*\b[^.$]{0,25}$|for\s*$", before) and re.search(r"usg|gsg|fund", low[max(0, s - 60):e + 20]):
+        if (re.search(r"(ask|request|need|want|apply|applying)\w*\b[^.$]{0,25}$|for\s*$", before)
+                and re.search(r"usg|gsg|fund", low[max(0, s - 60):e + 20])) \
+                or re.search(r"\b(?:usg|gsg)\b(?:\s+(?:funding|grant|request))?\s*[:=-]?\s*$", before):  # 'GSG $2,000'
             ev["amount_requested"] = v
             break
 
     # budget lines: '<item> $X', '<item>: $X', '$X for <item>', '<item> (~$X)'
     used, lines = set(), []
     for s, e, v in amounts:
-        if ev.get("amount_requested") == v and v not in used and re.search(r"(ask|request)", low[max(0, s - 40):s]):
+        if ev.get("amount_requested") == v and v not in used and re.search(r"(ask|request|usg|gsg)", low[max(0, s - 40):s]):
             used.add(v)
+            continue
+        # a ticket/entry price is income, not a cost: '$20 each', 'tickets at $20'
+        if re.match(r"\s*(?:each|per\s+(?:person|ticket|head|guest)|a\s+(?:ticket|head|person)|/\s*(?:ticket|person|head))\b", low[e:]) \
+                or re.search(r"(?:ticket|admission|entry|cover|door)s?\s*(?:price|fee|charge)?\s*(?:at|for|are|is|cost|costs|of)?\s*$", low[max(0, s - 40):s]):
             continue
         after = re.match(r"\s*(?:for|on)\s+(?:the\s+|a\s+)?([A-Za-z][\w' ]{1,30}?)(?=[,.;)]|\s+and\b|$)", t[e:])
         # words just before the amount, cut at a sentence/list break and never mid-word
