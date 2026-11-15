@@ -1,4 +1,13 @@
+# Run button (workspace): install, build the frontend, serve everything from one server on 8000.
 run = "pip install -q -r backend/requirements.txt && cd frontend && npm install && npm run build && cd .. && python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000"
+
+# Published app. build runs once per publish; run starts the server.
+# Bind 0.0.0.0 and use Replit's PORT (falls back to 8000). Set the API key in Secrets, never here.
+[deployment]
+build = ["sh", "-c", "pip install -q -r backend/requirements.txt && cd frontend && npm ci && npm run build"]
+run = ["sh", "-c", "python -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+
+# Published apps may expose only ONE port.
 [[ports]]
 localPort = 8000
 externalPort = 80
