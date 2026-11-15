@@ -227,9 +227,6 @@ def test_pack_rejects_polish_that_drops_placeholders(fake_llm):
     assert row["by"] == "template" and pack.PURPOSE in row["draft"]
 
 
-@pytest.mark.xfail(strict=True, reason="GAP (Split B, pack._polish): the placeholder check allows one '[' "
-                   "to go missing, so a draft with a single placeholder (USG funding: Purpose) can lose it, "
-                   "or have the model fill in a purpose it made up. Remove this marker once fixed.")
 def test_pack_keeps_the_only_placeholder(fake_llm):
     check, draft, stripped = _drop_placeholders("usg_funding")
     assert draft.count("[") == 1
@@ -345,8 +342,6 @@ def test_both_number_checkers_agree(fn, out, src, ok):
     assert fn(out, src) is ok
 
 
-@pytest.mark.xfail(strict=True, reason="DRIFT: assist.py's copy counts 'half' as 0.5, llm.py's copy doesn't. "
-                   "One shared checker would fix it. Remove this marker once they match.")
 def test_number_checkers_agree_on_half():
     assert llm.grounded("half the venue", "cap 4000") == assist.grounded("half the venue", "cap 4000")
 

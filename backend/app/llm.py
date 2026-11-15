@@ -34,12 +34,25 @@ def available() -> bool:
     return bool(os.getenv("ANTHROPIC_API_KEY"))
 
 
+# Our calls are short, single-shot rewording/extraction with no tools, so thinking only eats the
+# max_tokens budget: Sonnet 5.5 thinks by default, and a 250-token call came back with no text at all.
+# On claude-sonnet-5-5, {"type": "disabled"} is a 400; {"type": "between_tools"} is how to turn it off.
+THINKING_OFF = {"type": "between_tools"}
+
+
 def ask_text(system: str, user: str, max_tokens: int = 800) -> str:
-    msg = _client().messages.create(
-        model=MODEL, max_tokens=max_tokens, system=system,
-        messages=[{"role": "user", "content": user}],
-    )
-    return "".join(b.text for b in msg.content if b.type == "text").strip()
+    from anthropic import BadRequestError
+    client = _client()
+    kw = dict(model=MODEL, system=system, messages=[{"role": "user", "content": user}])
+    try:
+        msg = client.messages.create(max_tokens=max_tokens, thinking=THINKING_OFF, **kw)
+    except BadRequestError:
+        # another LLM_MODEL may not accept between_tools: let it think, with room to answer
+        msg = client.messages.create(max_tokens=max(max_tokens * 4, 2000), **kw)
+    text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
+    if not text:
+        raise ValueError(f"LLM returned no text (stop_reason={getattr(msg, 'stop_reason', None)})")
+    return text
 
 
 def ask_json(system: str, user: str, max_tokens: int = 1500) -> dict:
@@ -54,7 +67,7 @@ _NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
 _WORDS = {w: str(i) for i, w in enumerate(
     "zero one two three four five six seven eight nine ten eleven twelve".split())}
 _WORDS.update({"first": "1", "second": "2", "third": "3", "fourth": "4", "fifth": "5", "sixth": "6",
-               "twice": "2", "dozen": "12", "fifteen": "15", "twenty": "20", "thirty": "30"})
+               "twice": "2", "half": "0.5", "dozen": "12", "fifteen": "15", "twenty": "20", "thirty": "30"})
 _WORD_RE = re.compile(r"\b(" + "|".join(_WORDS) + r")\b", re.I)
 
 

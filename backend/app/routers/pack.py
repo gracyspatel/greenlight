@@ -8,6 +8,8 @@ version is thrown away if it contains any number that isn't in the facts.
 """
 from __future__ import annotations
 
+import re
+
 from fastapi import APIRouter
 
 from .. import llm
@@ -15,6 +17,7 @@ from .. import llm
 router = APIRouter(tags=["pack"])
 
 PURPOSE = "[One or two sentences: what the event is and who it's for]"
+_PLACEHOLDER = re.compile(r"\[[^\]]+\]")
 
 
 def _money(v) -> str:
@@ -113,8 +116,10 @@ def _polish(drafts: dict[str, str], facts_text: str) -> dict[str, str]:
     good = {}
     for aid, text in (out or {}).items():
         text = str(text or "").strip()
+        # every [placeholder] must survive word for word: a dropped one means the model
+        # deleted it or filled in something it made up (e.g. an invented purpose)
         if aid in drafts and text and llm.grounded(text, drafts[aid], facts_text) \
-                and text.count("[") >= drafts[aid].count("[") - 1:
+                and set(_PLACEHOLDER.findall(drafts[aid])) <= set(_PLACEHOLDER.findall(text)):
             good[aid] = text
     return good
 
