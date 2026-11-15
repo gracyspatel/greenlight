@@ -27,8 +27,6 @@ def flags(ev):
     return {f["rule_id"]: f for a in engine.check(ev)["approvals"] for f in a["flags"]}
 
 
-GSG_LINES = [{"item": "Pizza", "category": "food", "amount": 300, "quote_attached": False}]
-
 # rule id -> (event that FAILS the rule, expected level, event that PASSES it)
 CASES = {
     "usg_event_cap": (base(org__funded_events_this_semester=4), "reject",
@@ -38,8 +36,6 @@ CASES = {
     "usg_venue_cap": (base(budget_lines=[{"item": "Hall", "category": "venue", "amount": 4001, "quote_attached": True}]),
                       "reject",
                       base(budget_lines=[{"item": "Hall", "category": "venue", "amount": 4000, "quote_attached": True}])),
-    "gsg_vendor_quotes": (base(funding_source="GSG", budget_lines=GSG_LINES), "reject",
-                          base(funding_source="GSG", budget_lines=[{**GSG_LINES[0], "quote_attached": True}])),
     "food_vendor": (base(food__sold=True, food__vendor_approved=False), "reject",
                     base(food__sold=True, food__vendor_approved=True)),
     "uepa_needs_venue": (base(venue__confirmed=False), "risk", base(venue__confirmed=True)),

@@ -174,16 +174,6 @@
       "fix": "Venue lines total ${venue:,.0f}. Cut them by ${over:,.0f}, or pay the difference from club funds."
     },
     {
-      "id": "gsg_vendor_quotes",
-      "approval": "gsg_funding",
-      "check": "vendor_quotes",
-      "params": {},
-      "level": "reject",
-      "text": "GSG funding requests must include vendor quotes. (Not on GSG's public page; confirm with GSG.)",
-      "source": "https://gsg.usc.edu/?p=21392",
-      "fix": "Attach a vendor quote for: {items}."
-    },
-    {
       "id": "food_vendor",
       "approval": "catering",
       "check": "food_vendor",
