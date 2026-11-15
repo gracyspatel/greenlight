@@ -49,6 +49,10 @@ def calendar(body: CalendarIn):
         level = max((f["level"] for _, f in fixable), key=engine.LEVEL_RANK.get, default="ready")
         reasons = [f"{name}: {f['message']}" for name, f in
                    sorted(fixable, key=lambda x: -engine.LEVEL_RANK[x[1]["level"]])]
+        brk = engine.break_on(d)
+        if brk and level == "ready":  # a break day is never "ready", even with no approvals to flag
+            level = "risk"
+            reasons.append(f"Your event falls in {brk[0]}. Most offices and venues are closed.")
         notes = [f"{name}: {f['message']}" for name, f in flags if f["level"] == "warning"]
         out.append({"date": d.isoformat(), "level": level, "reasons": reasons[:4], "notes": notes[:3]})
     return out

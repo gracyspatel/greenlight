@@ -76,3 +76,11 @@ def test_calendar_has_green_days_far_enough_out():
     ev = {**DEMOS["ready"]}
     days = client.post("/api/calendar", json={"event": ev, "start": "2027-03-01", "days": 31}).json()
     assert any(d["level"] == "ready" for d in days)
+
+
+def test_calendar_never_rates_a_break_day_ready():
+    for ev in (DEMOS["ready"], {"name": "x", "as_of": "2026-11-15", "venue": {"on_campus": False}}):
+        days = client.post("/api/calendar", json={"event": ev, "start": "2026-12-10", "days": 62}).json()
+        for d in days:
+            if engine.break_on(engine._date(d["date"])):
+                assert d["level"] != "ready", d

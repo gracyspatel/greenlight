@@ -253,6 +253,12 @@
       "text": "Academic-week deadlines don't count break weeks, so the count is less certain near breaks.",
       "fix": "This window crosses {breaks}. Confirm the exact deadline with usgfunds@usc.edu."
     },
+    "event_in_break": {
+      "level": "risk",
+      "text": "USC academic calendar: {name} runs {start} to {end}.",
+      "source": "https://arr.usc.edu/registration-calendar/",
+      "fix": "Your event falls in {name}. Most offices and venues are closed. Confirm with the office, or pick a date outside the break."
+    },
     "returned": {
       "level": "risk",
       "fix": "This was returned. Fix what the office flagged and resubmit."

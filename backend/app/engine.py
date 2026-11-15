@@ -92,12 +92,21 @@ def deadline_for(approval: dict, event_date: dt.date):
     return event_date - dt.timedelta(days=lead["days"]), []
 
 
+def break_on(d: dt.date | None):
+    """(name, start, end) of the break that day falls in, else None."""
+    if d:
+        for b in BREAKS:
+            if b[1] <= d <= b[2]:
+                return b
+    return None
+
+
 def earliest_event_date(approval: dict, today: dt.date):
-    """Earliest event date whose deadline for this approval is still open."""
+    """Earliest event date whose deadline for this approval is still open (never inside a break)."""
     d = today
     for _ in range(400):
         dl, _ = deadline_for(approval, d)
-        if dl is None or dl >= today:
+        if (dl is None or dl >= today) and not break_on(d):
             return d
         d += dt.timedelta(days=1)
     return None
@@ -318,6 +327,17 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
 
     # the order an officer does things in (rules.json "step"), then by deadline
     results.sort(key=lambda r: (r["step"], r["deadline"] or "9999"))
+    # the event day itself falls in a break: one flag, on the first step
+    brk = break_on(event_date)
+    if brk and results and results[0]["status"] != "approved":
+        g, r0 = GENERIC["event_in_break"], results[0]
+        name, bs, be = brk
+        r0["flags"].append(_flag("event_in_breaks", g["level"], f"Your event falls in {name}.",
+                                 g["text"].format(name=name, start=fmt(bs), end=fmt(be)), g["source"],
+                                 g["fix"].format(name=name)))
+        r0["flags"].sort(key=lambda f: -LEVEL_RANK[f["level"]])
+        r0["verdict"] = max((f["level"] for f in r0["flags"]), key=LEVEL_RANK.get)
+        r0["verdict_label"] = LEVEL_LABEL[r0["verdict"]]
     for i, r in enumerate(results, 1):
         r["order"] = i  # 1, 2, 3... as shown to the user
     worst = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")

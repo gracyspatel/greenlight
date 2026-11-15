@@ -286,3 +286,27 @@ def test_all_warnings_listed_even_next_to_fixable_problems():
     assert len(msgs) == 3 and all(w["level"] == "warning" for w in r["warnings"])
     assert any("close to the $8,000 cap" in m for m in msgs)
     assert all(w["approval"] == "USG funding application" for w in r["warnings"])
+
+
+# ---------------------------------------------------------------- breaks
+def test_event_in_a_break_is_flagged_on_the_first_step():
+    r = engine.check(base(date="2026-12-28"))  # Winter break
+    first = r["approvals"][0]
+    f = next(f for f in first["flags"] if f["rule_id"] == "event_in_breaks")
+    assert f["level"] == "risk" and "Winter break" in f["fix"] and f["rule_id"].endswith("_breaks")
+    assert r["verdict"] != "ready"
+    assert sum(f["rule_id"] == "event_in_breaks" for a in r["approvals"] for f in a["flags"]) == 1
+
+
+def test_earliest_event_date_skips_breaks():
+    venue = engine.APPROVALS["venue_request"]  # 35 days
+    d = engine.earliest_event_date(venue, dt.date(2026, 11, 14))  # +35 = Dec 19, inside winter break
+    assert d == dt.date(2027, 1, 11) and not engine.break_on(d)
+
+
+def test_suggested_dates_are_never_in_a_break():
+    r = engine.check(DEMOS["blockers"])
+    for a in r["approvals"]:
+        for f in a["flags"]:
+            if f["rule_id"].endswith("_deadline") and "or later" in f["fix"]:
+                assert "Dec 2" not in f["fix"] and "Jan 1, 2027" not in f["fix"], f["fix"]
