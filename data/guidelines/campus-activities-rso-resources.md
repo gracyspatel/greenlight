@@ -3,7 +3,6 @@ title: Campus Activities RSO Resources
 source: https://campusactivities.usc.edu/programs/recognized-student-organizations/rso-resources/
 fetched: 2026-11-14
 ---
-Note: https://campusactivities.usc.edu/?p=11807 (the `source` of `venue_request` in rules.json) returns this same "RSO Resources" page.
 
 # RSO Resources
 

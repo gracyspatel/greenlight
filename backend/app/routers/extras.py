@@ -45,9 +45,16 @@ def _tokens(text: str) -> list[str]:
         for suf in ("ing", "ic", "ed"):  # alcoholic -> alcohol, funded -> fund
             if len(w) > len(suf) + 3 and w.endswith(suf):
                 w = w[: -len(suf)]
+                if suf == "ed" and len(w) > 3 and w[-1] == w[-2]:
+                    w = w[:-1]  # capped -> cap
                 break
-        out.append(w)
+        out.append(SYNONYMS.get(w, w))
     return out
+
+
+# words officers use -> the word the guidelines use, so "Can USG pay for X?" finds "eligible for funding"
+SYNONYMS = {"pay": "fund", "paid": "fund", "cover": "fund", "maximum": "cap", "max": "cap", "limit": "cap"}
+MIN_COVERAGE = 0.5  # the best excerpt must contain at least half of the question's (idf-weighted) words
 
 
 def _frontmatter(text: str) -> tuple[dict, str]:
@@ -97,20 +104,28 @@ def search(question: str, k: int = 4) -> list[dict]:
     q = set(_tokens(question))
     if not q or not chunks:
         return []
-    docs = [set(_tokens(c["heading"] + " " + c["text"])) for c in chunks]
+    # the page title counts toward "does this cover the question" (a USG page is about USG),
+    # but only the excerpt's own words decide which excerpt of that page is the best one
+    texts = [set(_tokens(c["heading"] + " " + c["text"])) for c in chunks]
+    docs = [t | set(_tokens(c["title"])) for t, c in zip(texts, chunks)]
     n = len(docs)
     idf = {t: math.log(1 + n / (1 + sum(t in d for d in docs))) for t in q}
+    total = sum(idf.values())
     scored = []
-    for c, d in zip(chunks, docs):
+    for c, d, txt in zip(chunks, docs, texts):
         hits = q & d
         if hits:
-            scored.append((sum(idf[t] for t in hits) / math.sqrt(1 + len(d) / 80), len(hits), c))
-    scored.sort(key=lambda x: -x[0])
-    best = [c for s, hits, c in scored[:k]]
-    # need a real match: either 2+ question words, or 1 rare word
-    if not scored or (scored[0][1] < 2 and len(q) > 1 and scored[0][0] < 1.0):
+            cover = sum(idf[t] for t in hits) / total
+            dense = sum(idf[t] for t in q & txt) / math.sqrt(1 + len(txt) / 80)
+            scored.append((round(cover, 2), dense, len(hits), c))
+    # the excerpt that covers most of the question first, then the denser one
+    scored.sort(key=lambda x: (-x[0], -x[1]))
+    # a weak match is worse than no answer: the caller then says "email usgfunds@usc.edu"
+    # instead of quoting something unrelated. Weak = covers under half the question, or
+    # shares just one word with a multi-word question.
+    if not scored or scored[0][0] < MIN_COVERAGE or (len(q) > 1 and scored[0][2] < 2):
         return []
-    return best
+    return [c for cover, s, n, c in scored[:k]]
 
 
 ASK_SYSTEM = """You answer USC student club officers' questions about event funding and approvals.

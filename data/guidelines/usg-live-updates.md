@@ -5,7 +5,7 @@ fetched: 2026-11-14
 ---
 # Live Updates
 
-See all the latest news from USG. (Note: the newest posts on the page as fetched are dated September 2024.)
+See all the latest news from USG.
 
 ## September 18, 2024 - RSO Updates
 

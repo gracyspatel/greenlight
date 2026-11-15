@@ -84,3 +84,23 @@ def test_calendar_never_rates_a_break_day_ready():
         for d in days:
             if engine.break_on(engine._date(d["date"])):
                 assert d["level"] != "ready", d
+
+
+def test_ask_never_shows_our_internal_notes():
+    from app.routers.extras import load_chunks
+    for c in load_chunks():
+        assert "rules.json" not in c["text"] and "as fetched" not in c["text"], c["title"]
+    r = client.post("/api/ask", json={"question": "What is the venue cap?"}).json()
+    assert "rules.json" not in r["answer"] and "$4,000" in r["answer"]
+
+
+def test_ask_weak_match_falls_back_to_email():
+    for q in ("Who is the USG president?", "When is the UEPA due?"):
+        r = client.post("/api/ask", json={"question": q}).json()
+        assert "usgfunds@usc.edu" in r["answer"] and r["citations"] == [], q
+
+
+def test_ask_alcohol_is_not_a_generic_gsg_paragraph():
+    r = client.post("/api/ask", json={"question": "Can USG pay for alcohol?"}).json()
+    assert "GSG" not in r["answer"]
+    assert "Alcoholic beverages" in r["answer"] or "usgfunds@usc.edu" in r["answer"]
