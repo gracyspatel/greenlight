@@ -44,7 +44,8 @@ def _num(v, default=0.0):
 
 
 def fmt(d: dt.date | None) -> str:
-    return d.strftime("%a %b %-d, %Y") if d else "—"
+    # %-d isn't supported on Windows, so build the day number by hand.
+    return (d.strftime("%a %b ") + str(d.day) + d.strftime(", %Y")) if d else "—"
 
 
 def _break_days(start: dt.date, end: dt.date):
@@ -180,8 +181,8 @@ def run_rule(rule: dict, ev: dict):
     elif c == "usg_annual_cap":
         total = org["usg_received_this_year"] + ev["amount_requested"]
         cap = p["cap"]
-        if total >= cap:
-            over = total - cap + 1
+        if total > cap:  # exactly the cap is allowed ("maximum of $8,000")
+            over = total - cap
             return "reject", f"${total:,.0f} for the year breaks the ${cap:,.0f} cap.", rule["fix"].format(total=total, over=over)
         if total >= cap * p["near_ratio"]:
             return "risk", f"${total:,.0f} for the year is close to the ${cap:,.0f} cap.", "Expect closer review. Keep this year's other requests small."

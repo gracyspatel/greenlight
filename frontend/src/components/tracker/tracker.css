@@ -1,0 +1,21 @@
+.tracker .tr-head { display: flex; justify-content: space-between; align-items: baseline; }
+.tr-bar { height: 6px; background: #eef0ec; border-radius: 99px; overflow: hidden; margin: 2px 0 12px; }
+.tr-bar > div { height: 100%; background: #1f7a3a; transition: width .3s; }
+.tr-blocking { background: #fff8e6; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; font-size: 14px; }
+.tr-blocking ol { margin: 6px 0 2px; padding-left: 20px; }
+.tr-blocking li { margin: 3px 0; }
+.tr-clear { background: #dff3e4; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; font-size: 14px; }
+.tr-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f1ee; font-size: 14px; }
+.tr-row .tr-name { flex: 1; min-width: 0; }
+.tr-row.s-approved .tr-name { color: #1f7a3a; }
+.tr-row.s-approved { background: #f3faf5; }
+.tr-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #c9ccc5; flex: none; }
+.tr-dot.red { background: #c62828; } .tr-dot.yellow { background: #d39b00; }
+.tr-dot.green { background: #1f7a3a; } .tr-dot.done { background: #1f7a3a; box-shadow: 0 0 0 2px #dff3e4; }
+.tr-remind { margin-top: 12px; }
+.tr-email { margin-top: 8px; display: grid; gap: 6px; }
+.tr-email pre, .pk-draft { white-space: pre-wrap; font: 13px/1.45 ui-monospace, Menlo, monospace; background: #f7f8f6;
+  border: 1px solid #e3e5e0; border-radius: 6px; padding: 10px; margin: 0; max-height: 260px; overflow: auto; }
+.small { font-size: 12px; }
+.btn-link { font-size: 14px; padding: 8px 12px; border-radius: 6px; background: #eef0ec; color: #1d1f1c; text-decoration: none; }
+@media (max-width: 700px) { .tr-row { flex-wrap: wrap; } .tr-row select { width: 100%; } }

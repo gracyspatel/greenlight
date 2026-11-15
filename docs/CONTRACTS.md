@@ -57,3 +57,7 @@ Real examples: `data/demo_events.json` and `frontend/src/mock/check_responses.js
 | POST | /pack | Split B | CheckResponse → `[{approval_id, system, link, draft}]` |
 | GET | /reviewer/queue | Split B | → `[{id, name, date, requested, verdict, verdict_label, summary}]` |
 | POST | /ask | Split B | `{question}` → `{answer, citations:[{title, source}]}` |
+| POST | /reviewer/submit | Split B | `{event}` → `{ok, id}` (adds the event to the reviewer queue; in memory) |
+
+Optional extra fields (safe to ignore): `/pack` rows add `name, deadline_label, by` ("ai"|"template");
+`/reviewer/queue` rows add `by, source` ("submitted"|"demo"), `counts, attendance, venue`; `/ask` adds `by`.

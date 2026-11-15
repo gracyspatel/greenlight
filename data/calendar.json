@@ -1,9 +1,30 @@
 {
-  "_note": "APPROXIMATE USC 2026-27 academic calendar. Verify against the official USC academic calendar before the demo. Weeks that fall mostly inside a break don't count as academic weeks.",
+  "_note": "USC 2026-27 academic calendar, checked against arr.usc.edu/registration-calendar on 2026-11-14. Weeks that fall mostly inside a break don't count as academic weeks. Summer 2027 end date not published yet (approximate).",
   "breaks": [
-    {"name": "Thanksgiving break", "start": "2026-11-25", "end": "2026-11-29"},
-    {"name": "Winter break", "start": "2026-12-17", "end": "2027-01-10"},
-    {"name": "Spring break", "start": "2027-03-14", "end": "2027-03-21"},
-    {"name": "Summer", "start": "2027-05-15", "end": "2027-08-22"}
+    {
+      "name": "Fall recess",
+      "start": "2026-10-08",
+      "end": "2026-10-09"
+    },
+    {
+      "name": "Thanksgiving break",
+      "start": "2026-11-25",
+      "end": "2026-11-29"
+    },
+    {
+      "name": "Winter break",
+      "start": "2026-12-17",
+      "end": "2027-01-10"
+    },
+    {
+      "name": "Spring break",
+      "start": "2027-03-14",
+      "end": "2027-03-21"
+    },
+    {
+      "name": "Summer",
+      "start": "2027-05-13",
+      "end": "2027-08-22"
+    }
   ]
 }

@@ -7,7 +7,12 @@ const MOCK = import.meta.env.VITE_MOCK === '1'
 const post = (url, body) =>
   fetch('/api' + url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     .then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json() })
-const get = url => fetch('/api' + url).then(r => r.json())
+const get = url => fetch('/api' + url).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json() })
+
+const mockPack = result => (result.approvals || []).map(a => ({
+  approval_id: a.id, name: a.name, system: a.system, link: a.link, deadline_label: a.deadline_label,
+  draft: `Event: ${result.event?.name}\nDate: ${result.event?.date}`, by: 'template',
+}))
 
 export const api = {
   demos: () => (MOCK ? Promise.resolve(mockDemos) : get('/demo')),
@@ -15,7 +20,8 @@ export const api = {
   check: event => (MOCK ? Promise.resolve(mockChecks[event.id] || mockChecks.blockers) : post('/check', event)),
   extract: (text, event) => (MOCK ? Promise.resolve({ event: mockDemos[2], questions: [] }) : post('/extract', { text, event })),
   explain: (flag, event) => (MOCK ? Promise.resolve({ reason: flag.message, fix: flag.fix, quote: flag.rule_text }) : post('/explain', { flag, event })),
-  pack: result => post('/pack', result),
-  reviewerQueue: () => get('/reviewer/queue'),
-  ask: question => post('/ask', { question }),
+  pack: result => (MOCK ? Promise.resolve(mockPack(result)) : post('/pack', result)),
+  reviewerQueue: () => (MOCK ? Promise.resolve([]) : get('/reviewer/queue')),
+  submitToReviewer: event => (MOCK ? Promise.resolve({ ok: true }) : post('/reviewer/submit', { event })),
+  ask: question => (MOCK ? Promise.resolve({ answer: 'Mock mode: no answer.', citations: [] }) : post('/ask', { question })),
 }
