@@ -21,6 +21,7 @@
 .fix { border: 1px solid #e3e5e0; border-left: 4px solid #d39b00; border-radius: 8px; padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
 .fix.reject { border-left-color: #c62828; }
 .fix-what { flex: 1 1 220px; font-size: 13px; line-height: 1.4; }
+.fix-btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .fix button { white-space: nowrap; }
 .fix-note { flex-basis: 100%; font-size: 13px; background: #fff8e6; padding: 6px 8px; border-radius: 6px; }
 .fix-clear { background: #dff3e4; padding: 8px 10px; border-radius: 6px; margin: 0; }

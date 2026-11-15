@@ -151,4 +151,27 @@ export function allFixes(result, ev) {
   return [...byKey.values()].sort((x, y) => rank(x) - rank(y) || y.flags.length - x.flags.length)
 }
 
+/**
+ * Fixes grouped by the flags they touch, so each flag is listed once with all of its buttons
+ * (e.g. "Food is being sold..." with both "Give the food away free" and "Switch to USC Hospitality").
+ * Returns [{flags:[{flag, approval}], fixes:[fix]}], most serious group first.
+ */
+export function fixGroups(result, ev) {
+  const fid = x => x.approval.id + '|' + x.flag.rule_id
+  const groups = []
+  for (const fx of allFixes(result, ev)) {
+    const hits = groups.filter(g => fx.flags.some(x => g.ids.has(fid(x))))
+    const g = hits[0] || { ids: new Set(), flags: [], fixes: [] }
+    if (!hits.length) groups.push(g)
+    for (const other of hits.slice(1)) { // this fix links two groups: merge them
+      other.flags.forEach(x => { if (!g.ids.has(fid(x))) { g.ids.add(fid(x)); g.flags.push(x) } })
+      g.fixes.push(...other.fixes)
+      groups.splice(groups.indexOf(other), 1)
+    }
+    fx.flags.forEach(x => { if (!g.ids.has(fid(x))) { g.ids.add(fid(x)); g.flags.push(x) } })
+    g.fixes.push(fx)
+  }
+  return groups
+}
+
 export { money }

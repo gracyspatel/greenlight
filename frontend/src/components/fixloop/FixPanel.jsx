@@ -4,7 +4,7 @@
 // Uses the `result` prop if App passes it; otherwise runs its own /check.
 import { useEffect, useState } from 'react'
 import { api } from '../../api'
-import { allFixes, money, semesterOf } from './fixes'
+import { fixGroups, money, semesterOf } from './fixes'
 import './fixloop.css'
 
 const CATEGORIES = ['venue', 'food', 'entertainment', 'supplies', 'marketing', 'other']
@@ -38,7 +38,7 @@ export default function FixPanel({ event, setEvent, result: resultProp }) {
   const addLine = () => set('budget_lines', [...lines, { item: '', category: 'other', amount: 0, quote_attached: false }])
   const dropLine = i => set('budget_lines', lines.filter((_, j) => j !== i))
 
-  const fixes = result ? allFixes(result, event) : []
+  const groups = result ? fixGroups(result, event) : []
   const apply = async fx => {
     if (fx.focus) {
       const el = document.getElementById(fx.focus)
@@ -64,24 +64,28 @@ export default function FixPanel({ event, setEvent, result: resultProp }) {
     <div className="card fixpanel">
       <h2>2. Fix &amp; re-check</h2>
 
-      {fixes.length > 0 && (
+      {groups.length > 0 && (
         <div className="fixes">
           <div className="fixes-head">Suggested fixes <span className="muted">· each value is checked by the rules before we use it</span></div>
-          {fixes.map(fx => (
-            <div key={fx.key} className={'fix ' + (fx.flags.some(x => x.flag.level === 'reject') ? 'reject' : 'risk')}>
+          {groups.map(g => (
+            <div key={g.fixes[0].key} className={'fix ' + (g.flags.some(x => x.flag.level === 'reject') ? 'reject' : 'risk')}>
               <div className="fix-what">
-                {fx.flags.slice(0, 3).map(({ flag, approval }) => (
+                {g.flags.slice(0, 4).map(({ flag, approval }) => (
                   <div key={approval.id + flag.rule_id}><b>{approval.name}:</b> {flag.message}</div>
                 ))}
-                {fx.flags.length > 3 && <div className="muted">+ {fx.flags.length - 3} more</div>}
+                {g.flags.length > 4 && <div className="muted">+ {g.flags.length - 4} more</div>}
               </div>
-              <button onClick={() => apply(fx)} disabled={!!busy}>{busy === fx.key ? 'Checking…' : fx.label}</button>
-              {notes[fx.key] && <div className="fix-note">{notes[fx.key]}</div>}
+              <div className="fix-btns">
+                {g.fixes.map(fx => (
+                  <button key={fx.key} onClick={() => apply(fx)} disabled={!!busy}>{busy === fx.key ? 'Checking…' : fx.label}</button>
+                ))}
+              </div>
+              {g.fixes.map(fx => notes[fx.key] && <div key={fx.key} className="fix-note">{notes[fx.key]}</div>)}
             </div>
           ))}
         </div>
       )}
-      {!resultProp && result && fixes.length === 0 && result.verdict === 'ready' && <p className="fix-clear">✓ Nothing to fix. Every rule we check passes.</p>}
+      {!resultProp && result && groups.length === 0 && result.verdict === 'ready' && <p className="fix-clear">✓ Nothing to fix. Every rule we check passes.</p>}
 
       <fieldset>
         <legend>When &amp; where</legend>
