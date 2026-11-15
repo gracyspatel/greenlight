@@ -299,10 +299,9 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
 
     results.sort(key=lambda r: (r["deadline"] or "9999"))
     overall = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")
-    if not event_date:
-        overall_label = "Needs info"
-    else:
-        overall_label = LEVEL_LABEL[overall]
+    # Missing facts (date, venue, attendance, budget...) mean we can't call it Ready yet.
+    needs_info = not event_date or (bool(questions) and overall == "ready")
+    overall_label = "Needs info" if needs_info else LEVEL_LABEL[overall]
 
     return {
         "event": ev,
@@ -310,7 +309,7 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
         "features": feats,
         "questions": questions,
         "approvals": results,
-        "verdict": overall if event_date else "risk",
+        "verdict": "risk" if needs_info else overall,
         "verdict_label": overall_label,
         "counts": {k: sum(1 for r in results if r["verdict"] == k) for k in LEVEL_RANK},
         "disclaimer": "Ready means your request meets every written rule we check. The final decision is still USG's.",
