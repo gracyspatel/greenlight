@@ -249,14 +249,15 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
             flags.append(_flag(f"{a['id']}_breaks", g["level"],
                                "The deadline window crosses a break.", g["text"], a["source"],
                                g["fix"].format(breaks=", ".join(breaks))))
-        # ordering
+        # ordering: waiting on an earlier step is normal planning (shown via depends_on).
+        # It's only a risk when this step was filed while its prerequisite isn't approved yet.
         for dep in a.get("depends_on", []):
-            if dep in needed_ids and not done:
+            if dep in needed_ids and status == "submitted":
                 dep_status = ev["tracking"].get(dep, {}).get("status", "not_started")
                 if dep_status != "approved" and a["id"] != "uepa":  # uepa uses its own venue rule
                     g = GENERIC["depends_pending"]
                     flags.append(_flag(f"{a['id']}_order", g["level"],
-                                       f"Waiting on \"{APPROVALS[dep]['name']}\".",
+                                       f"Filed before \"{APPROVALS[dep]['name']}\" was approved.",
                                        a["text"], a["source"],
                                        g["fix"].format(dep=APPROVALS[dep]["name"])))
         # specific rules

@@ -137,10 +137,21 @@ def test_fmt_has_no_leading_zero():
 
 
 # ---------------------------------------------------------------- ordering + tracking
-def test_social_dance_form_waits_on_start():
-    ev = base(dancing=True, date="2027-04-20", as_of="2026-11-15")
+def test_waiting_on_a_step_is_not_a_risk():
+    # dancing + tickets, nothing submitted yet: waiting on step 1 is normal planning
+    ev = base(dancing=True, ticket_sales=True, date="2027-04-20", as_of="2026-11-15")
+    r = engine.check(ev)
+    assert not any(f["rule_id"].endswith("_order") for a in r["approvals"] for f in a["flags"])
+    assert r["verdict"] == "ready"
+    form = next(a for a in r["approvals"] if a["id"] == "social_dance_form")
+    assert form["depends_on"] == ["social_dance_start"]  # still shown as information
+
+
+def test_filed_out_of_order_is_risk():
+    ev = base(dancing=True, date="2027-04-20", as_of="2026-11-15",
+              tracking={"social_dance_form": {"status": "submitted", "submitted_on": "2026-11-15"}})
     assert flags(ev)["social_dance_form_order"]["level"] == "risk"
-    ev["tracking"] = {"social_dance_start": {"status": "approved"}}
+    ev["tracking"]["social_dance_start"] = {"status": "approved"}
     assert "social_dance_form_order" not in flags(ev)
 
 

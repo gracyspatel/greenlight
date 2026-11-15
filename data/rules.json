@@ -259,7 +259,7 @@
     },
     "depends_pending": {
       "level": "risk",
-      "fix": "Finish \"{dep}\" first."
+      "fix": "Get \"{dep}\" approved. This office may hold your request until it is."
     }
   },
   "_note_step": "'step' is the order an officer does things in. The USG/GSG application needs the venue confirmation (ESR), the Hospitality food form and the UEPA Event ID, so those come first.",
