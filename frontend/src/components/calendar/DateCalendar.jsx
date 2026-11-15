@@ -137,6 +137,12 @@ export default function DateCalendar({ event, setEvent }) {
               </div>
             </div>
             {sel.reasons.length > 0 && <ul>{sel.reasons.map(r => <li key={r}>{r}</li>)}</ul>}
+            {sel.notes?.length > 0 && (
+              <div className="cal-notes">
+                <b>Warning (can't be changed, just good to know):</b>
+                <ul>{sel.notes.map(n => <li key={n}>{n}</li>)}</ul>
+              </div>
+            )}
             {sel.date === event.date
               ? <p className="muted">This is your event's current date.</p>
               : (

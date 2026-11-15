@@ -36,3 +36,5 @@
 .cal-pick ul { margin: 8px 0; padding-left: 20px; font-size: 15px; line-height: 1.45; }
 .cal-pick .row { margin-top: 8px; }
 @media (max-width: 520px) { .cal-wk { display: none; } .cal-day { min-height: 44px; font-size: 14px; } .cal-grid { border-spacing: 2px; } }
+.cal-notes { margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #eef1f8; font-size: 14px; }
+.cal-notes ul { margin: 4px 0 0; }

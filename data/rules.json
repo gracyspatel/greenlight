@@ -209,7 +209,7 @@
       "params": {
         "field": "other_university_funding"
       },
-      "level": "risk",
+      "level": "warning",
       "text": "USG may deny an application when the RSO is receiving funding from another University income source.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Say clearly in the application which costs the other source covers and which ones you're asking USG to cover."
@@ -221,7 +221,7 @@
       "params": {
         "field": "past_misuse"
       },
-      "level": "risk",
+      "level": "warning",
       "text": "USG may deny an application for past instances of misuse of funds within the academic year.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Settle any open reimbursement issues with USG before you submit."
@@ -233,7 +233,7 @@
       "params": {
         "field": "usg_funds_low"
       },
-      "level": "risk",
+      "level": "warning",
       "text": "Applications are reviewed on a first come first serve basis until all funds are exhausted.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Submit as early as you can and check USG Live Updates. Have a backup plan for funding."
@@ -249,7 +249,7 @@
       "fix": "Due in {days} day(s) ({deadline}). Submit today."
     },
     "break_crossing": {
-      "level": "risk",
+      "level": "warning",
       "text": "Academic-week deadlines don't count break weeks, so the count is less certain near breaks.",
       "fix": "This window crosses {breaks}. Confirm the exact deadline with usgfunds@usc.edu."
     },
@@ -262,5 +262,6 @@
       "fix": "Finish \"{dep}\" first."
     }
   },
-  "_note_step": "'step' is the order an officer does things in. The USG/GSG application needs the venue confirmation (ESR), the Hospitality food form and the UEPA Event ID, so those come first."
+  "_note_step": "'step' is the order an officer does things in. The USG/GSG application needs the venue confirmation (ESR), the Hospitality food form and the UEPA Event ID, so those come first.",
+  "_note_levels": "Levels: reject = a rule is broken; risk = something the club can fix; warning = a risk factor the club can't change (shown, but never blocks Ready)."
 }

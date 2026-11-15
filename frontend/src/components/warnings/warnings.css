@@ -1,0 +1,18 @@
+.wn-summary { list-style: none; padding: 0; margin: 0 0 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.wn-tile { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid transparent; background: #fff; }
+.wn-tile.reject { background: #fde1e1; border-color: #f3bdbd; }
+.wn-tile.risk { background: #fff3d1; border-color: #f0dc9c; }
+.wn-tile.ready { background: #dff3e4; border-color: #b9e2c5; }
+.wn-tile.warning { background: #eef1f8; border-color: #cdd5e6; }
+.wn-tile.zero { background: #f7f8f6; border-color: #e3e5e0; color: #6b7068; }
+.wn-icon { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.8); font-weight: 800; flex: none; }
+.wn-n { font-size: 26px; font-weight: 800; line-height: 1; }
+.wn-label { display: flex; flex-direction: column; font-weight: 600; font-size: 14px; line-height: 1.2; }
+.wn-label small { font-weight: 400; color: #555a52; font-size: 12px; }
+.wn-card { background: #f6f8fc; border-color: #cdd5e6; }
+.wn-card h3 { margin: 0 0 4px; font-size: 18px; }
+.wn-sub { margin: 0 0 10px; font-size: 15px; }
+.wn-list { margin: 0; padding-left: 20px; display: grid; gap: 10px; font-size: 15px; line-height: 1.45; }
+.wn-tip { margin-top: 2px; }
+.wn-src { font-size: 13px; margin-top: 2px; }
+@media (max-width: 640px) { .wn-summary { grid-template-columns: repeat(2, 1fr); } }

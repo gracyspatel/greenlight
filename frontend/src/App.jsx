@@ -16,6 +16,7 @@ import Tracker from './components/tracker/Tracker'
 import PackView from './components/pack/PackView'
 import ReviewerView from './components/reviewer/ReviewerView'
 import AskBox from './components/ask/AskBox'
+import { Summary, Warnings } from './components/warnings/Warnings'
 import './shell.css'
 
 const STEPS = [
@@ -60,6 +61,7 @@ export default function App() {
   const go = i => setStep(Math.max(0, Math.min(STEPS.length - 1, i)))
   const unlocked = i => i === 0 || !!result
   const problems = result ? (result.counts?.reject || 0) + (result.counts?.risk || 0) : 0
+  const warnings = result?.warnings?.length || 0
   const s = STEPS[step]
 
   return (
@@ -99,6 +101,7 @@ export default function App() {
                 <b>{result.verdict_label}</b>
                 <span className="gl-status-ev"> · {result.event?.name}{result.event?.date ? ` · ${result.event.date}` : ''}</span>
                 {problems > 0 && <span> · {problems} approval{problems === 1 ? '' : 's'} need{problems === 1 ? 's' : ''} attention</span>}
+                {warnings > 0 && <span className="gl-status-warn"> · ⚠ {warnings} warning{warnings === 1 ? '' : 's'}</span>}
               </span>
               {problems > 0 && step !== 2 && <button className="gl-status-btn" onClick={() => go(2)}>Fix problems</button>}
             </div>
@@ -118,6 +121,8 @@ export default function App() {
 
               {s.id === 'needs' && result && (
                 <>
+                  <Summary result={result} />
+                  <Warnings result={result} />
                   <VerdictCards result={result} event={event} />
                   <Timeline result={result} />
                 </>

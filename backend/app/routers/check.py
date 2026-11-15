@@ -39,15 +39,18 @@ def calendar(body: CalendarIn):
     for i in range(max(1, min(body.days, 62))):
         d = start + dt.timedelta(days=i)
         if d < today:
-            out.append({"date": d.isoformat(), "level": "past", "reasons": []})
+            out.append({"date": d.isoformat(), "level": "past", "reasons": [], "notes": []})
             continue
         r = engine.check({**ev, "date": d.isoformat()})
         flags = [(a["name"], f) for a in r["approvals"] for f in a["flags"]
                  if f["rule_id"].endswith(("_deadline", "_breaks"))]
-        level = max((f["level"] for _, f in flags), key=engine.LEVEL_RANK.get, default="ready")
+        # warnings (e.g. the window crosses a break) don't change the color; they become notes
+        fixable = [(n, f) for n, f in flags if f["level"] != "warning"]
+        level = max((f["level"] for _, f in fixable), key=engine.LEVEL_RANK.get, default="ready")
         reasons = [f"{name}: {f['message']}" for name, f in
-                   sorted(flags, key=lambda x: -engine.LEVEL_RANK[x[1]["level"]])]
-        out.append({"date": d.isoformat(), "level": level, "reasons": reasons[:4]})
+                   sorted(fixable, key=lambda x: -engine.LEVEL_RANK[x[1]["level"]])]
+        notes = [f"{name}: {f['message']}" for name, f in flags if f["level"] == "warning"]
+        out.append({"date": d.isoformat(), "level": level, "reasons": reasons[:4], "notes": notes[:3]})
     return out
 
 

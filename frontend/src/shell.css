@@ -62,3 +62,12 @@
   .gl .gl-main { padding: 12px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .gl * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* "Warning" level: risk factors the club can't change. Styles Split A's cards too
+   (their classes follow the level name), without editing their files. */
+.gl .approval.warning { border-color: #6b7fae; }
+.gl .pill.warning, .gl .lvl.warning { background: #e6ebf6; color: #34446b; }
+.gl .flag.warning { background: #f6f8fc; }
+.gl-status-warn { color: #34446b; }
+/* the 4-tile summary replaces the 3 chips inside the verdict banner */
+.gl .gl-step .verdict .chips { display: none; }

@@ -59,6 +59,13 @@ Real examples: `data/demo_events.json` and `frontend/src/mock/check_responses.js
 | POST | /ask | Split B | `{question}` → `{answer, citations:[{title, source}]}` |
 | POST | /reviewer/submit | Split B | `{event}` → `{ok, id}` (adds the event to the reviewer queue; in memory) |
 
+**Levels:** `reject` (a rule is broken) · `risk` (the club can fix it) · `warning` (a risk factor the club
+can't change, e.g. USG funds running low, a break in the deadline window, close to the yearly cap).
+A flag or approval can be `"warning"` (label "Warning"). Warnings never block Ready: the overall `verdict`
+is never `"warning"`. `counts` has `ready, warning, risk, reject` (per approval, by its worst flag), and the
+response adds `warnings: [{approval_id, approval, ...flag}]`, listing every warning flag. `/calendar` days add
+`notes` (warnings), which don't change the day's color.
+
 `approvals` come in the order an officer does them (rules.json `step`, then deadline). Each approval
 adds `step` and `order` (1, 2, 3… as shown). Inside an approval, `flags` are worst first. Show them in this order.
 

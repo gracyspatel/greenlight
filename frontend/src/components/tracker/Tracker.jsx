@@ -16,7 +16,8 @@ const due = a => (a.days_left == null ? 'no fixed deadline'
 export function blocking(result) {
   const byId = Object.fromEntries(result.approvals.map(a => [a.id, a]))
   return result.approvals
-    .filter(a => a.status !== 'approved' && (!DONE.has(a.status) || a.verdict !== 'ready'))
+    // warnings are things the club can't change, so they never block
+    .filter(a => a.status !== 'approved' && (!DONE.has(a.status) || !['ready', 'warning'].includes(a.verdict)))
     .map(a => ({ ...a, waitingOn: a.depends_on.filter(d => byId[d]?.status !== 'approved').map(d => byId[d]?.name) }))
 }
 
