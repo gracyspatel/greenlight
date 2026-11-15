@@ -5,3 +5,5 @@ __pycache__/
 .env
 .env.local
 .venv/
+# VS Code Local History extension: keeps copies of every edited file, including .env
+.history/
