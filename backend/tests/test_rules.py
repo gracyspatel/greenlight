@@ -392,3 +392,28 @@ def test_fix_suggests_vendors_that_pass():
     for name in sug.split(", "):
         v = engine.find_vendor(name)
         assert v["usg_vendor"] and v["catering_approved"] and v["per_person"] <= 35
+
+
+# ---------------------------------------------------------------- vendor edge cases (found by review)
+def test_budget_line_words_dont_match_short_aliases():
+    for item in ["sesame seeds bagels", "panda-shaped cookies", "dulce de leche cake from Porto's"]:
+        ev = base(food__vendor="", budget_lines=FOOD(200, item=item))
+        assert engine.check(ev)["event"]["food"]["vendor_match"] is None, item
+
+
+def test_vendor_field_still_matches_aliases():
+    assert engine.find_vendor("Dulce")["name"] == "Cafe Dulce"
+
+
+def test_text_attendance_does_not_crash():
+    r = engine.check(base(attendance="about 60", food__vendor="CAVA", budget_lines=FOOD(600)))
+    assert r["verdict_label"]  # no crash
+
+
+def test_non_string_vendor_does_not_crash():
+    assert engine.check(base(food__vendor=123, budget_lines=FOOD(300)))["verdict_label"]
+
+
+def test_usg_food_line_is_checked_even_if_food_unticked():
+    f = flags(base(food__served=False, food__vendor="Superette", budget_lines=FOOD(300)))
+    assert "usg_food_vendor_list" in f

@@ -133,7 +133,7 @@
       "location": "USC Village",
       "type": "restaurant/bar",
       "cuisine": "Irish pub food",
-      "usg_vendor": false,
+      "usg_vendor": true,
       "catering_approved": true,
       "health_permit": true,
       "insurance": true,
@@ -201,8 +201,7 @@
       "per_person": 15,
       "notes": "Catering2Go is real (USC Hospitality); the flags here are still demo values. 48 business hours notice, $200 minimum on weekdays.",
       "aliases": [
-        "panda express",
-        "panda"
+        "panda express"
       ]
     },
     {
@@ -217,8 +216,7 @@
       "per_person": 14,
       "notes": "Catering2Go is real (USC Hospitality); the flags here are still demo values.",
       "aliases": [
-        "seeds marketplace",
-        "seeds"
+        "seeds marketplace"
       ]
     },
     {
