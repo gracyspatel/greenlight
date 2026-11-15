@@ -21,14 +21,14 @@ export function prettyDate(date) {
   return new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-/** First event date (after the current one) where no approval has a deadline or break problem. */
+/** First event date (after the current one) that the engine's /calendar rates "ready":
+ *  every deadline can be met and the day is not in a break. One call rates 62 days. */
 export async function findWorkingDate(ev) {
   const from = [todayOf(ev), ev.date].filter(Boolean).sort().at(-1)
-  for (let off = 1; off <= 300; off += 30) {
-    const dates = Array.from({ length: 15 }, (_, i) => addDays(from, off + i * 2))
-    const res = await Promise.all(dates.map(date => api.check({ ...ev, date }).catch(() => null)))
-    const i = res.findIndex(r => r && !flagged(r, isDateFlag))
-    if (i >= 0) return dates[i]
+  for (let off = 1; off <= 310; off += 62) { // about 10 months ahead
+    const days = await api.calendar(ev, addDays(from, off), 62).catch(() => null)
+    const hit = (days || []).find(d => d.level === 'ready')
+    if (hit) return hit.date
   }
   return null
 }
@@ -72,7 +72,7 @@ export function fixesFor(flag, approval, ev) {
   if (flag.patch && typeof flag.patch === 'object') {
     out.push({ key: 'patch-' + id, label: 'Apply suggested fix', run: async e => deepPatch(e, flag.patch) })
   }
-  if (/_(deadline|breaks)$/.test(id)) {
+  if (isDateFlag(flag)) {
     out.push({
       key: 'move-date', label: 'Find a date that works',
       run: async e => { const d = await findWorkingDate(e); return d ? { ...e, date: d } : null },
