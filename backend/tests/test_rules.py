@@ -39,9 +39,9 @@ CASES = {
     "food_vendor": (base(food__sold=True, food__vendor_approved=False), "reject",
                     base(food__sold=True, food__vendor_approved=True)),
     "uepa_needs_venue": (base(venue__confirmed=False), "risk", base(venue__confirmed=True)),
-    "disc_other_funding": (base(org__other_university_funding=True), "risk", base()),
-    "disc_past_misuse": (base(org__past_misuse=True), "risk", base()),
-    "disc_low_funds": (base(org__usg_funds_low=True), "risk", base()),
+    "disc_other_funding": (base(org__other_university_funding=True), "warning", base()),
+    "disc_past_misuse": (base(org__past_misuse=True), "warning", base()),
+    "disc_low_funds": (base(org__usg_funds_low=True), "warning", base()),
 }
 
 
@@ -70,15 +70,15 @@ def test_rule_passes(rule_id):
     assert rule_id not in flags(good)
 
 
-def test_annual_cap_near_is_risk():
+def test_annual_cap_near_is_warning():
     f = flags(base(org__usg_received_this_year=5800))  # 5800 + 1200 = 7000 >= 0.85 * 8000
-    assert f["usg_annual_cap"]["level"] == "risk"
+    assert f["usg_annual_cap"]["level"] == "warning"
 
 
 def test_annual_cap_allows_exactly_the_cap():
     # "maximum of $8,000" (confirmed by the team): exactly 8,000 is allowed, 1 dollar more is not
     f = flags(base(org__usg_received_this_year=6800))  # 6800 + 1200 = 8000
-    assert f["usg_annual_cap"]["level"] == "risk"   # allowed, but close to the cap
+    assert f["usg_annual_cap"]["level"] == "warning"   # allowed, but close to the cap
     f = flags(base(org__usg_received_this_year=6801))  # 8001
     assert f["usg_annual_cap"]["level"] == "reject"
     assert "$1" in f["usg_annual_cap"]["fix"]       # cut by at least $1
@@ -125,7 +125,7 @@ def test_winter_break_weeks_do_not_count():
 
 def test_break_crossing_flag():
     ev = base(date="2027-01-27", as_of="2026-10-01")
-    assert flags(ev)["usg_funding_breaks"]["level"] == "risk"
+    assert flags(ev)["usg_funding_breaks"]["level"] == "warning"
 
 
 def test_no_break_no_flag():
@@ -186,3 +186,66 @@ def test_every_rule_has_source_and_known_check():
         assert r["source"].startswith("https://") and r["text"]
         assert r["check"] in known
         assert r["approval"] in engine.APPROVALS
+
+
+def test_missing_facts_are_never_ready():
+    # a date but no venue, attendance or budget: open questions mean "Needs info", not Ready
+    ev = {"name": "Movie night", "date": "2027-03-10", "as_of": "2026-11-15",
+          "funding_source": "USG", "amount_requested": 300}
+    r = engine.check(ev)
+    assert r["questions"] and r["verdict"] != "ready"
+    # off campus: no venue/UEPA flags, so only the missing facts stand between it and Ready
+    r = engine.check({**ev, "venue": {"on_campus": False}})
+    assert r["questions"] and r["verdict_label"] == "Needs info" and r["verdict"] == "risk"
+
+
+def test_approvals_come_in_the_order_they_are_done():
+    ids = [a["id"] for a in engine.check(DEMOS["blockers"])["approvals"]]
+    # the USG application needs the venue confirmation, the food form and the UEPA ID first
+    assert ids.index("venue_request") < ids.index("catering") < ids.index("uepa") < ids.index("usg_funding")
+    assert ids.index("social_dance_start") < ids.index("social_dance_form")
+    assert ids.index("fundraising_ca") < ids.index("fundraising_bh")
+    assert ids[0] == "social_dance_start"  # longest lead time: start it first
+    orders = [a["order"] for a in engine.check(DEMOS["blockers"])["approvals"]]
+    assert orders == list(range(1, len(orders) + 1))
+
+
+def test_worst_flag_first_inside_an_approval():
+    for a in engine.check(DEMOS["blockers"])["approvals"]:
+        levels = [engine.LEVEL_RANK[f["level"]] for f in a["flags"]]
+        assert levels == sorted(levels, reverse=True)
+
+
+def test_every_approval_has_a_step():
+    assert all(isinstance(a.get("step"), int) for a in engine.RULES["approvals"])
+
+
+# ---------------------------------------------------------------- warnings
+def test_warnings_never_block_ready():
+    # funds low + close to the cap: things the club can't change -> still Ready, listed as warnings
+    r = engine.check(base(org__usg_funds_low=True, org__usg_received_this_year=5800))
+    assert r["verdict"] == "ready" and r["verdict_label"] == "Ready"
+    assert r["counts"]["warning"] == 1 and r["counts"]["risk"] == 0
+    usg = next(a for a in r["approvals"] if a["id"] == "usg_funding")
+    assert usg["verdict"] == "warning" and usg["verdict_label"] == "Warning"
+    assert {f["level"] for f in usg["flags"]} == {"warning"}
+
+
+def test_fixable_problems_outrank_warnings():
+    r = engine.check(base(org__usg_funds_low=True, venue__confirmed=False))
+    assert r["verdict"] == "risk"  # the unconfirmed venue is fixable, so it still counts
+    assert r["counts"]["warning"] == 1 and r["counts"]["risk"] == 1
+
+
+def test_counts_have_all_four_categories():
+    c = engine.check(DEMOS["blockers"])["counts"]
+    assert set(c) == {"ready", "warning", "risk", "reject"}
+    assert sum(c.values()) == len(engine.check(DEMOS["blockers"])["approvals"])
+
+
+def test_all_warnings_listed_even_next_to_fixable_problems():
+    r = engine.check(DEMOS["at_risk"])  # USG card has 'due soon' (fixable) + 3 warnings
+    msgs = [w["message"] for w in r["warnings"]]
+    assert len(msgs) == 3 and all(w["level"] == "warning" for w in r["warnings"])
+    assert any("close to the $8,000 cap" in m for m in msgs)
+    assert all(w["approval"] == "USG funding application" for w in r["warnings"])

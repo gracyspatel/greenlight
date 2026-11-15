@@ -16,7 +16,8 @@
       },
       "depends_on": [],
       "text": "USG funding requests are due Wednesday at 11:59 PM, six academic weeks before the event.",
-      "source": "https://usg.usc.edu/?p=4479"
+      "source": "https://usg.usc.edu/?p=4479",
+      "step": 5
     },
     {
       "id": "gsg_funding",
@@ -30,7 +31,8 @@
       },
       "depends_on": [],
       "text": "GSG applications are due 6–8 weeks before your event date (varies by event type). Greenlight uses the safer 8 weeks.",
-      "source": "https://gsg.usc.edu/?p=21392"
+      "source": "https://gsg.usc.edu/?p=21392",
+      "step": 5
     },
     {
       "id": "venue_request",
@@ -44,7 +46,8 @@
       },
       "depends_on": [],
       "text": "Requests should be made early enough — generally at least three to six weeks in advance. (Greenlight uses five weeks.)",
-      "source": "https://calendar.usc.edu/event-planning"
+      "source": "https://calendar.usc.edu/event-planning",
+      "step": 2
     },
     {
       "id": "uepa",
@@ -60,7 +63,8 @@
         "venue_request"
       ],
       "text": "Once Trojan Event Services has confirmed that space is available, organizers must submit a UEPA at least three weeks prior to the event date.",
-      "source": "https://calendar.usc.edu/event-planning"
+      "source": "https://calendar.usc.edu/event-planning",
+      "step": 4
     },
     {
       "id": "catering",
@@ -72,7 +76,8 @@
       "lead": null,
       "depends_on": [],
       "text": "All food and beverage must be supplied by an approved vendor. No \"homemade\" items will be approved.",
-      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf"
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+      "step": 3
     },
     {
       "id": "fundraising_ca",
@@ -86,7 +91,8 @@
       },
       "depends_on": [],
       "text": "Clubs selling tickets must meet with Campus Activities at least two weeks before the event.",
-      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf"
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+      "step": 7
     },
     {
       "id": "fundraising_bh",
@@ -102,7 +108,8 @@
         "fundraising_ca"
       ],
       "text": "The form must be returned with all required signatures (including Bookstore and/or Hospitality) at least 2 weeks before your event date.",
-      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf"
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2024/10/Fundraising-Approval-Form-FY25.pdf",
+      "step": 8
     },
     {
       "id": "social_dance_start",
@@ -116,7 +123,8 @@
       },
       "depends_on": [],
       "text": "Social dance approval must be started three months before the event.",
-      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf"
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "step": 1
     },
     {
       "id": "social_dance_form",
@@ -132,7 +140,8 @@
         "social_dance_start"
       ],
       "text": "The social dance form is due at least five weeks before the event.",
-      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf"
+      "source": "https://trojanevents.usc.edu/wp-content/uploads/2023/09/Step-by-Step-Instructions-for-the-new-Student-Affairs-Social-Dance-Approval-Process-2023.pdf",
+      "step": 6
     }
   ],
   "rules": [
@@ -200,7 +209,7 @@
       "params": {
         "field": "other_university_funding"
       },
-      "level": "risk",
+      "level": "warning",
       "text": "USG may deny an application when the RSO is receiving funding from another University income source.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Say clearly in the application which costs the other source covers and which ones you're asking USG to cover."
@@ -212,7 +221,7 @@
       "params": {
         "field": "past_misuse"
       },
-      "level": "risk",
+      "level": "warning",
       "text": "USG may deny an application for past instances of misuse of funds within the academic year.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Settle any open reimbursement issues with USG before you submit."
@@ -224,7 +233,7 @@
       "params": {
         "field": "usg_funds_low"
       },
-      "level": "risk",
+      "level": "warning",
       "text": "Applications are reviewed on a first come first serve basis until all funds are exhausted.",
       "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "Submit as early as you can and check USG Live Updates. Have a backup plan for funding."
@@ -240,7 +249,7 @@
       "fix": "Due in {days} day(s) ({deadline}). Submit today."
     },
     "break_crossing": {
-      "level": "risk",
+      "level": "warning",
       "text": "Academic-week deadlines don't count break weeks, so the count is less certain near breaks.",
       "fix": "This window crosses {breaks}. Confirm the exact deadline with usgfunds@usc.edu."
     },
@@ -252,5 +261,7 @@
       "level": "risk",
       "fix": "Finish \"{dep}\" first."
     }
-  }
+  },
+  "_note_step": "'step' is the order an officer does things in. The USG/GSG application needs the venue confirmation (ESR), the Hospitality food form and the UEPA Event ID, so those come first.",
+  "_note_levels": "Levels: reject = a rule is broken; risk = something the club can fix; warning = a risk factor the club can't change (shown, but never blocks Ready)."
 }

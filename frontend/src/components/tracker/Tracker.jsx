@@ -11,13 +11,14 @@ const due = a => (a.days_left == null ? 'no fixed deadline'
   : a.days_left < 0 ? `deadline passed ${-a.days_left} day(s) ago`
   : a.days_left === 0 ? 'due today' : `due in ${a.days_left} day(s)`)
 
-// What to do next, most urgent first: not done, and either flagged or waiting on something.
+// What to do next: not done, and either flagged or waiting on something.
+// Kept in the engine's order, which is the order the tasks are actually done in.
 export function blocking(result) {
   const byId = Object.fromEntries(result.approvals.map(a => [a.id, a]))
   return result.approvals
-    .filter(a => a.status !== 'approved' && (!DONE.has(a.status) || a.verdict !== 'ready'))
+    // warnings are things the club can't change, so they never block
+    .filter(a => a.status !== 'approved' && (!DONE.has(a.status) || !['ready', 'warning'].includes(a.verdict)))
     .map(a => ({ ...a, waitingOn: a.depends_on.filter(d => byId[d]?.status !== 'approved').map(d => byId[d]?.name) }))
-    .sort((x, y) => (x.days_left ?? 9999) - (y.days_left ?? 9999))
 }
 
 function advisorEmail(result, items) {
@@ -58,10 +59,10 @@ export default function Tracker({ result, event, setEvent }) {
 
       {items.length > 0 ? (
         <div className="tr-blocking">
-          <b>Blocking now</b>
+          <b>Do next, in this order</b>
           <ol>
             {items.slice(0, 3).map(a => (
-              <li key={a.id}>
+              <li key={a.id} value={a.order}>
                 <span className={'tr-dot ' + a.color} /> {a.name} <span className="muted">· {due(a)}</span>
                 {a.waitingOn.length > 0 && <span className="muted"> · waiting on {a.waitingOn.join(', ')}</span>}
               </li>
@@ -74,8 +75,9 @@ export default function Tracker({ result, event, setEvent }) {
       {result.approvals.map(a => (
         <div key={a.id} className={'tr-row s-' + a.status}>
           <span className={'tr-dot ' + a.color} />
+          <span className="tr-step" aria-hidden="true">{a.order}</span>
           <span className="tr-name">
-            {a.name}
+            <span className="sr-only">Step {a.order}: </span>{a.name}
             <span className="muted"> · {a.office} · {due(a)}</span>
           </span>
           <select value={a.status} onChange={e => setStatus(a.id, e.target.value)} aria-label={`Status of ${a.name}`}>

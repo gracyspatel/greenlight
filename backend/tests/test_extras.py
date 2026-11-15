@@ -59,3 +59,20 @@ def test_reviewer_queue_and_submit():
 def test_grounded_catches_number_words():
     assert not llm.grounded("the fifth event", "limit is 4")
     assert llm.grounded("the fifth event", "event #5")
+
+
+def test_calendar_colors_dates_by_deadlines_only():
+    ev = DEMOS["blockers"]  # Diwali, as_of 2026-11-15; has a venue-cap problem that is NOT date-related
+    days = client.post("/api/calendar", json={"event": ev, "start": "2026-11-10", "days": 62}).json()
+    by = {d["date"]: d for d in days}
+    assert by["2026-11-12"]["level"] == "past"
+    assert by["2026-12-12"]["level"] == "reject" and by["2026-12-12"]["reasons"]
+    assert all("Venue costs" not in r for d in days for r in d["reasons"])
+    # the calendar never changes the event; /check still sees the original date
+    assert client.post("/api/check", json=ev).json()["event"]["date"] == "2026-12-12"
+
+
+def test_calendar_has_green_days_far_enough_out():
+    ev = {**DEMOS["ready"]}
+    days = client.post("/api/calendar", json={"event": ev, "start": "2027-03-01", "days": 31}).json()
+    assert any(d["level"] == "ready" for d in days)

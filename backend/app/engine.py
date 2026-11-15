@@ -15,8 +15,10 @@ CAL = json.loads((BASE / "calendar.json").read_text())
 
 APPROVALS = {a["id"]: a for a in RULES["approvals"]}
 GENERIC = RULES["generic"]
-LEVEL_RANK = {"ready": 0, "risk": 1, "reject": 2}
-LEVEL_LABEL = {"ready": "Ready", "risk": "At risk", "reject": "Will be rejected"}
+# warning = a risk factor the club can't change (funds running low, a break in the window...).
+# It is shown, but it never blocks Ready.
+LEVEL_RANK = {"ready": 0, "warning": 1, "risk": 2, "reject": 3}
+LEVEL_LABEL = {"ready": "Ready", "warning": "Warning", "risk": "At risk", "reject": "Will be rejected"}
 WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 BREAKS = [
     (b["name"], dt.date.fromisoformat(b["start"]), dt.date.fromisoformat(b["end"]))
@@ -185,7 +187,7 @@ def run_rule(rule: dict, ev: dict):
             over = total - cap
             return "reject", f"${total:,.0f} for the year breaks the ${cap:,.0f} cap.", rule["fix"].format(total=total, over=over)
         if total >= cap * p["near_ratio"]:
-            return "risk", f"${total:,.0f} for the year is close to the ${cap:,.0f} cap.", "Expect closer review. Keep this year's other requests small."
+            return "warning", f"${total:,.0f} for the year is close to the ${cap:,.0f} cap.", "Expect closer review. Keep this year's other requests small."
     elif c == "usg_venue_cap":
         venue = sum(l["amount"] for l in lines if l["category"] == "venue")
         if venue > p["cap"]:
@@ -287,8 +289,11 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
         else:
             color = "green"
 
+        # most serious problem first inside each approval (stable: keeps rule order otherwise)
+        flags.sort(key=lambda f: -LEVEL_RANK[f["level"]])
+
         results.append({
-            "id": a["id"], "name": a["name"], "office": a["office"],
+            "id": a["id"], "step": a.get("step", 99), "name": a["name"], "office": a["office"],
             "system": a["system"], "link": a["link"],
             "depends_on": [d for d in a.get("depends_on", []) if d in needed_ids],
             "deadline": deadline.isoformat() if deadline else None,
@@ -297,12 +302,15 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
             "verdict": verdict, "verdict_label": LEVEL_LABEL[verdict], "flags": flags,
         })
 
-    results.sort(key=lambda r: (r["deadline"] or "9999"))
-    overall = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")
-    if not event_date:
-        overall_label = "Needs info"
-    else:
-        overall_label = LEVEL_LABEL[overall]
+    # the order an officer does things in (rules.json "step"), then by deadline
+    results.sort(key=lambda r: (r["step"], r["deadline"] or "9999"))
+    for i, r in enumerate(results, 1):
+        r["order"] = i  # 1, 2, 3... as shown to the user
+    worst = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")
+    overall = "ready" if worst == "warning" else worst  # warnings alone still mean Ready
+    # Missing facts (date, venue, attendance, budget...) mean we can't call it Ready yet.
+    needs_info = not event_date or (bool(questions) and overall == "ready")
+    overall_label = "Needs info" if needs_info else LEVEL_LABEL[overall]
 
     return {
         "event": ev,
@@ -310,9 +318,12 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
         "features": feats,
         "questions": questions,
         "approvals": results,
-        "verdict": overall if event_date else "risk",
+        "verdict": "risk" if needs_info else overall,
         "verdict_label": overall_label,
         "counts": {k: sum(1 for r in results if r["verdict"] == k) for k in LEVEL_RANK},
+        # every warning flag, even inside approvals that also have fixable problems
+        "warnings": [{"approval_id": r["id"], "approval": r["name"], **f}
+                     for r in results for f in r["flags"] if f["level"] == "warning"],
         "disclaimer": "Ready means your request meets every written rule we check. The final decision is still USG's.",
     }
 
