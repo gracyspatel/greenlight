@@ -44,7 +44,14 @@ export default function DateCalendar({ event, setEvent }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, gridStart])
 
-  useEffect(() => { setPicked(event.date || null) }, [event.date])
+  // the date can change from outside (e.g. "Find a date that works"): show that month
+  useEffect(() => {
+    setPicked(event.date || null)
+    if (!event.date) return
+    setFocus(event.date)
+    const m = monthStart(parse(event.date))
+    setMonth(cur => (cur.getTime() === m.getTime() ? cur : m))
+  }, [event.date])
 
   const byDate = useMemo(() => Object.fromEntries((days || []).map(d => [d.date, d])), [days])
   const sel = picked && byDate[picked]
