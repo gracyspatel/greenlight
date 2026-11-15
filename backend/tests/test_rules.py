@@ -186,3 +186,14 @@ def test_every_rule_has_source_and_known_check():
         assert r["source"].startswith("https://") and r["text"]
         assert r["check"] in known
         assert r["approval"] in engine.APPROVALS
+
+
+def test_missing_facts_are_never_ready():
+    # a date but no venue, attendance or budget: open questions mean "Needs info", not Ready
+    ev = {"name": "Movie night", "date": "2027-03-10", "as_of": "2026-11-15",
+          "funding_source": "USG", "amount_requested": 300}
+    r = engine.check(ev)
+    assert r["questions"] and r["verdict"] != "ready"
+    # off campus: no venue/UEPA flags, so only the missing facts stand between it and Ready
+    r = engine.check({**ev, "venue": {"on_campus": False}})
+    assert r["questions"] and r["verdict_label"] == "Needs info" and r["verdict"] == "risk"
