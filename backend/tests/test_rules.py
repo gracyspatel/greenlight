@@ -310,3 +310,21 @@ def test_suggested_dates_are_never_in_a_break():
         for f in a["flags"]:
             if f["rule_id"].endswith("_deadline") and "or later" in f["fix"]:
                 assert "Dec 2" not in f["fix"] and "Jan 1, 2027" not in f["fix"], f["fix"]
+
+
+# ---------------------------------------------------------------- verdict + normalize
+def test_reject_beats_needs_info():
+    ev = base(date=None, budget_lines=[{"item": "Hall", "category": "venue", "amount": 4500, "quote_attached": True}])
+    r = engine.check(ev)
+    assert r["verdict"] == "reject" and r["verdict_label"] == "Will be rejected"
+
+
+def test_no_date_and_nothing_rejected_is_needs_info():
+    r = engine.check(base(date=None))
+    assert r["verdict_label"] == "Needs info" and r["verdict"] == "risk"
+
+
+def test_selling_food_means_serving_food():
+    ev = engine.normalize({"food": {"sold": True}})
+    assert ev["food"]["served"] is True
+    assert engine.check(base(food={"sold": True, "served": False}))["features"]["food"]

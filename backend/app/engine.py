@@ -124,6 +124,7 @@ def normalize(ev: dict) -> dict:
     food = dict(ev.get("food") or {})
     for k in ("served", "sold", "vendor_approved"):
         food[k] = bool(food.get(k, False))
+    food["served"] = food["served"] or food["sold"]  # selling food means food is served
     food.setdefault("vendor", "")
     ev["food"] = food
     ev["dancing"] = bool(ev.get("dancing", False))
@@ -343,7 +344,8 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
     worst = max((r["verdict"] for r in results), key=LEVEL_RANK.get, default="ready")
     overall = "ready" if worst == "warning" else worst  # warnings alone still mean Ready
     # Missing facts (date, venue, attendance, budget...) mean we can't call it Ready yet.
-    needs_info = not event_date or (bool(questions) and overall == "ready")
+    # A reject always wins; otherwise a missing date or open questions mean "Needs info".
+    needs_info = overall != "reject" and (not event_date or bool(questions))
     overall_label = "Needs info" if needs_info else LEVEL_LABEL[overall]
 
     return {
