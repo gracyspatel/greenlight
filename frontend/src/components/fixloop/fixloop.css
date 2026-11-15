@@ -22,7 +22,9 @@
 .fix.reject { border-left-color: #c62828; }
 .fix-what { flex: 1 1 220px; font-size: 13px; line-height: 1.4; }
 .fix-btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
-.fix button { white-space: nowrap; }
+/* long labels wrap instead of pushing the page sideways on phones */
+.fix button { max-width: 100%; white-space: normal; text-align: center; }
+.fix-btns { min-width: 0; max-width: 100%; }
 .fix-note { flex-basis: 100%; font-size: 13px; background: #fff8e6; padding: 6px 8px; border-radius: 6px; }
 .fix-clear { background: #dff3e4; padding: 8px 10px; border-radius: 6px; margin: 0; }
 
