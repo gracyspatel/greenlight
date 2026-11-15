@@ -182,6 +182,12 @@ def ask(body: AskIn):
 
 # ================================================================ reviewer
 SUBMITTED: list[dict] = []   # in memory: resets on restart, fine for a demo
+_NEXT_ID = [0]
+
+
+def _key(ev: dict) -> tuple[str, str]:
+    """Same event = same name + date. A re-submit replaces the earlier one."""
+    return (" ".join(str(ev.get("name") or "").lower().split()), str(ev.get("date") or "")[:10])
 _SUMMARIES: dict[str, str] = {}
 
 SUMMARY_SYSTEM = """You write a 2-sentence summary of a student club's event funding application
@@ -238,7 +244,9 @@ def _row(d: dict, source: str) -> dict:
 @router.get("/reviewer/queue")
 def reviewer_queue():
     demos = json.loads((engine.BASE / "demo_events.json").read_text())
-    items = [(d, "submitted") for d in reversed(SUBMITTED)] + [(d, "demo") for d in demos]
+    sent = {_key(d) for d in SUBMITTED}
+    # a submitted event hides the demo it came from
+    items = [(d, "submitted") for d in reversed(SUBMITTED)] + [(d, "demo") for d in demos if _key(d) not in sent]
     with ThreadPoolExecutor(max_workers=6) as pool:
         return list(pool.map(lambda x: _row(*x), items))
 
@@ -251,6 +259,8 @@ class SubmitIn(BaseModel):
 def reviewer_submit(body: SubmitIn):
     """The officer sends their (checked) event to the USG reviewer queue."""
     ev = {k: v for k, v in body.event.items() if k != "text"}
-    ev["id"] = f"sub-{len(SUBMITTED) + 1}"
+    SUBMITTED[:] = [d for d in SUBMITTED if _key(d) != _key(ev)]  # re-submit replaces
+    _NEXT_ID[0] += 1
+    ev["id"] = f"sub-{_NEXT_ID[0]}"
     SUBMITTED.append(ev)
     return {"ok": True, "id": ev["id"]}

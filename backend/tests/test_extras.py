@@ -104,3 +104,18 @@ def test_ask_alcohol_is_not_a_generic_gsg_paragraph():
     r = client.post("/api/ask", json={"question": "Can USG pay for alcohol?"}).json()
     assert "GSG" not in r["answer"]
     assert "Alcoholic beverages" in r["answer"] or "usgfunds@usc.edu" in r["answer"]
+
+
+def test_reviewer_queue_dedupes_resubmits_and_hides_the_matching_demo():
+    from app.routers import extras
+    extras.SUBMITTED.clear()
+    ev = {**DEMOS["at_risk"], "name": "Dedupe Night", "date": "2027-02-10"}
+    for amount in (1000, 1500, 2000):
+        assert client.post("/api/reviewer/submit", json={"event": {**ev, "amount_requested": amount}}).json()["ok"]
+    rows = [r for r in client.get("/api/reviewer/queue").json() if r["name"] == "Dedupe Night"]
+    assert len(rows) == 1 and rows[0]["requested"] == 2000  # the latest one wins
+    # sending a demo hides the demo row: it shows once, as submitted
+    client.post("/api/reviewer/submit", json={"event": DEMOS["blockers"]})
+    rows = [r for r in client.get("/api/reviewer/queue").json() if r["name"] == DEMOS["blockers"]["name"]]
+    assert len(rows) == 1 and rows[0]["source"] == "submitted"
+    extras.SUBMITTED.clear()
