@@ -75,7 +75,7 @@ function Understood({ event: e }) {
   ]
   return (
     <div className="understood">
-      <div className="muted small">Here's what we understood. Fix anything wrong in step 2.</div>
+      <div className="muted small">Here's what we understood. Fix anything wrong in step 3.</div>
       <div className="facts">
         {items.map(([k, v]) => (
           <span key={k} className={'fact' + (v ? '' : ' missing')}><span className="k">{k}</span> {v ?? 'missing'}</span>
@@ -97,7 +97,7 @@ function Question({ q, event, setEvent }) {
       setEvent(r.event)
       setA('')
     } catch {
-      setErr("Couldn't add that. Try again, or set it in step 2.")
+      setErr("Couldn't add that. Try again, or set it in step 3.")
     } finally { setBusy(false) }
   }
   return (
