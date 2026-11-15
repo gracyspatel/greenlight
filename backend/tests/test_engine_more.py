@@ -191,10 +191,10 @@ def _usg(**org):
 
 
 @pytest.mark.parametrize("received, level", [
-    (5599, None),       # 6,799 total: under 85% of 8,000
-    (5600, "risk"),     # 6,800 = exactly 85%
-    (6800, "risk"),     # 8,000 = exactly the cap (allowed)
-    (6801, "reject"),   # 8,001
+    (5599, None),        # 6,799 total: under 85% of 8,000
+    (5600, "warning"),   # 6,800 = exactly 85%: shown, but the club can't change it
+    (6800, "warning"),   # 8,000 = exactly the cap (allowed)
+    (6801, "reject"),    # 8,001
 ])
 def test_annual_cap_boundaries(received, level):
     f = {f["rule_id"]: f for f in all_flags(engine.check(_usg(usg_received_this_year=received)))}
@@ -222,14 +222,57 @@ def test_worst_approval_decides_overall_verdict():
     for d in DEMOS.values():
         r = engine.check(d)
         worst = max((a["verdict"] for a in r["approvals"]), key=engine.LEVEL_RANK.get, default="ready")
-        assert r["verdict"] == worst
+        assert r["verdict"] == ("ready" if worst == "warning" else worst)
         assert sum(r["counts"].values()) == len(r["approvals"])
 
 
-def test_approvals_sorted_by_deadline_with_undated_last():
-    r = engine.check(DEMOS["blockers"])
-    keys = [a["deadline"] or "9999" for a in r["approvals"]]
-    assert keys == sorted(keys) and r["approvals"][-1]["deadline"] is None  # catering
+def test_approvals_in_officer_order_then_deadline():
+    for d in DEMOS.values():
+        r = engine.check(d)
+        keys = [(a["step"], a["deadline"] or "9999") for a in r["approvals"]]
+        assert keys == sorted(keys)
+        assert [a["order"] for a in r["approvals"]] == list(range(1, len(r["approvals"]) + 1))
+
+
+def test_every_approval_has_a_step():
+    assert all(isinstance(a.get("step"), int) for a in engine.RULES["approvals"])
+
+
+# ---------------------------------------------------------------- warnings (can't-change risks)
+WARNING_EVENT = _usg(usg_funds_low=True, past_misuse=True, other_university_funding=True)
+
+
+def test_warnings_alone_still_mean_ready():
+    r = engine.check(WARNING_EVENT)
+    assert {f["level"] for f in all_flags(r)} == {"warning"}
+    assert r["verdict"] == "ready" and r["verdict_label"] == "Ready"
+    assert approval(r, "usg_funding")["verdict"] == "warning"
+
+
+def test_overall_verdict_is_never_warning():
+    for ev in SCENARIOS + [WARNING_EVENT]:
+        assert engine.check(ev)["verdict"] != "warning"
+
+
+def test_warnings_list_has_every_warning_flag():
+    for ev in SCENARIOS + [WARNING_EVENT]:
+        r = engine.check(ev)
+        want = sorted((a["id"], f["rule_id"]) for a in r["approvals"] for f in a["flags"] if f["level"] == "warning")
+        assert sorted((w["approval_id"], w["rule_id"]) for w in r["warnings"]) == want
+
+
+def test_flags_worst_first_inside_each_approval():
+    for ev in SCENARIOS:
+        for a in engine.check(ev)["approvals"]:
+            ranks = [engine.LEVEL_RANK[f["level"]] for f in a["flags"]]
+            assert ranks == sorted(ranks, reverse=True), a["id"]
+
+
+def test_open_questions_mean_needs_info_not_ready():
+    ev = copy.deepcopy(DEMOS["ready"])
+    ev["attendance"] = None
+    r = engine.check(ev)
+    assert r["questions"] and r["verdict_label"] == "Needs info" and r["verdict"] != "ready"
 
 
 def test_no_date_means_needs_info():
@@ -255,7 +298,7 @@ SCENARIOS = list(DEMOS.values()) + [
 @pytest.mark.parametrize("ev", SCENARIOS, ids=lambda e: e.get("name", "?") + "-" + str(e.get("date")))
 def test_every_flag_is_complete_and_fully_formatted(ev):
     for f in all_flags(engine.check(ev)):
-        assert f["level"] in ("risk", "reject")
+        assert f["level"] in ("warning", "risk", "reject")
         assert f["message"] and f["fix"] and f["rule_text"]
         assert f["source"].startswith("https://"), f["rule_id"]
         for text in (f["message"], f["fix"]):
