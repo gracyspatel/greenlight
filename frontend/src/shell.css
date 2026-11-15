@@ -1,0 +1,64 @@
+/* Owner: Split B. Step-by-step shell. Scoped under .gl so it wins over the shared styles.css. */
+.gl { font-size: 16px; line-height: 1.5; min-height: 100vh; padding-bottom: 96px; }
+.gl :focus-visible { outline: 3px solid #1a5fd0; outline-offset: 2px; }
+.gl button { min-height: 44px; }
+.gl .muted { color: #555a52; }            /* darker than the default for contrast */
+.gl-skip { position: absolute; left: -9999px; top: 8px; background: #fff; padding: 8px 12px; z-index: 100; }
+.gl-skip:focus { left: 8px; }
+
+.gl .gl-header { padding: 12px 24px; }
+.gl .gl-header h1 { font-size: 22px; }
+.gl .gl-header nav { display: flex; gap: 6px; }
+
+/* stepper */
+.gl-stepper { background: #fff; border-bottom: 1px solid #e3e5e0; padding: 10px 16px; }
+.gl-stepper ol { list-style: none; margin: 0 auto; padding: 0; display: flex; gap: 4px; max-width: 900px; }
+.gl-stepper li { flex: 1; position: relative; }
+.gl .gl-stepper button { width: 100%; display: flex; align-items: center; gap: 8px; justify-content: center;
+  background: transparent; color: #1d1f1c; padding: 8px 6px; border-radius: 10px; font-size: 15px; }
+.gl .gl-stepper button:hover:not(:disabled) { background: #f1f2ef; }
+.gl .gl-stepper button:disabled { opacity: .45; cursor: not-allowed; }
+.gl-num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; flex: none;
+  border: 2px solid #9aa096; font-weight: 700; font-size: 14px; background: #fff; }
+.gl-stepper li.done .gl-num { background: #dff3e4; border-color: #1f7a3a; color: #1f7a3a; }
+.gl-stepper li.now .gl-num { background: #1f7a3a; border-color: #1f7a3a; color: #fff; }
+.gl-stepper li.now .gl-lbl { font-weight: 700; }
+
+/* status bar: the verdict, visible on every step */
+.gl-status { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px;
+  max-width: 900px; margin: 12px auto 0; padding: 10px 14px; border-radius: 12px; border: 1px solid transparent; }
+.gl-status.ready { background: #dff3e4; border-color: #b9e2c5; }
+.gl-status.risk { background: #fff3d1; border-color: #f0dc9c; }
+.gl-status.reject { background: #fde1e1; border-color: #f3bdbd; }
+.gl-status-icon { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,.75); font-weight: 800; flex: none; }
+.gl-status-text { flex: 1; min-width: 0; }
+.gl .gl-status-btn { padding: 6px 14px; }
+
+/* one step at a time */
+.gl .gl-main { display: block; max-width: 900px; margin: 0 auto; padding: 16px; }
+.gl-step-head { margin: 8px 0 16px; }
+.gl-eyebrow { margin: 0; font-size: 14px; font-weight: 600; color: #1f7a3a; text-transform: uppercase; letter-spacing: .04em; }
+.gl .gl-step-head h2 { font-size: 28px; margin: 2px 0 6px; outline: none; }
+.gl-hint { margin: 0; font-size: 17px; color: #3e423b; max-width: 640px; }
+.gl .gl-step .card { padding: 20px; border-radius: 14px; }
+/* the step title replaces the components' own numbered titles */
+.gl .gl-step .intake > h2:first-child, .gl .gl-step .fixpanel > h2:first-child { display: none; }
+.gl-allclear { background: #dff3e4; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; }
+
+.gl-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;
+  padding-top: 16px; border-top: 1px solid #e3e5e0; }
+.gl .gl-footer button { font-size: 17px; padding: 10px 20px; }
+.gl-footnote { text-align: right; margin-top: 6px; }
+
+.gl main.single { max-width: 1100px; margin: 0 auto; padding: 16px; outline: none; }
+
+@media (max-width: 640px) {
+  .gl .gl-header { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
+  .gl-lbl { display: none; }
+  .gl-stepper li.now .gl-lbl { display: inline; }
+  .gl .gl-step-head h2 { font-size: 23px; }
+  .gl-status-ev { display: none; }
+  .gl .gl-main { padding: 12px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .gl * { transition: none !important; scroll-behavior: auto !important; } }
