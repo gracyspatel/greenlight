@@ -2,6 +2,7 @@
   {
     "id": "ready",
     "name": "Spring Career Mixer",
+    "text": "Spring Career Mixer on March 4, 2027 in Ronald Tutor Campus Center 450 (already booked). About 80 students. Free catering from USC Hospitality $800 and room rental $400, quotes attached. Requesting $1,200 from USG. USG has funded 1 of our events this semester, $1,500 total this year.",
     "as_of": "2026-11-15",
     "date": "2027-03-04",
     "venue": {"name": "Ronald Tutor Campus Center 450", "on_campus": true, "confirmed": true},
@@ -21,6 +22,7 @@
   {
     "id": "at_risk",
     "name": "Hackathon Kickoff Night",
+    "text": "Hackathon Kickoff Night on Feb 3, 2027 in Seeley G. Mudd 101 (not booked yet). About 150 students. Free catering from USC Hospitality $1,600 and room rental $1,200, quotes attached. Asking USG for $2,800. USG has funded 2 of our events this semester, $4,200 total this year. We heard USG funds are running low.",
     "as_of": "2026-11-15",
     "date": "2027-02-03",
     "venue": {"name": "Seeley G. Mudd 101", "on_campus": true, "confirmed": false},
@@ -40,6 +42,7 @@
   {
     "id": "blockers",
     "name": "Diwali Night",
+    "text": "Diwali Night on Dec 12 in the TCC Grand Ballroom (not booked yet), about 300 people. We'll sell tickets and sell food from a local restaurant, plus a DJ and dancing. Asking USG for $3,500. Costs: ballroom $4,500, DJ $600, no quotes yet. USG has funded 4 of our events this semester, $5,200 total this year.",
     "as_of": "2026-11-15",
     "date": "2026-12-12",
     "venue": {"name": "TCC Grand Ballroom", "on_campus": true, "confirmed": false},

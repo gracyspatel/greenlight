@@ -1,0 +1,40 @@
+/* Owner: Split A — VerdictCards */
+.verdict .small { font-size: 12px; }
+.banner.big { padding: 16px; border: 1px solid transparent; }
+.banner.big.ready { border-color: #b7e2c3; } .banner.big.risk { border-color: #f0d98a; } .banner.big.reject { border-color: #f3b4b4; }
+.banner-top { display: flex; gap: 12px; align-items: center; }
+.banner.big h2 { font-size: 26px; margin: 2px 0 0; }
+.banner .was { font-size: 16px; font-weight: 500; color: #6b7068; }
+.v-icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 700; color: #fff; flex: none; }
+.banner.ready .v-icon { background: #1f7a3a; } .banner.risk .v-icon { background: #d39b00; } .banner.reject .v-icon { background: #c62828; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 8px; }
+.chip { font-size: 13px; padding: 3px 10px; border-radius: 99px; background: #fff; border: 1px solid #e3e5e0; }
+.chip.reject b { color: #c62828; } .chip.risk b { color: #a87b00; } .chip.ready b { color: #1f7a3a; }
+.disclaimer { display: block; color: #4a4f47; }
+
+.fixed-strip { background: #dff3e4; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; animation: gl-pop .5s ease-out; }
+.fixed-strip ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
+.fixed-strip li { text-decoration: line-through; text-decoration-color: #1f7a3a80; }
+@keyframes gl-pop { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.verdict .approval { padding: 0; border-radius: 0 8px 8px 0; background: #fafbf9; }
+.approval-head { width: 100%; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; background: none; color: inherit; text-align: left; padding: 9px 10px; border-radius: 0 8px 8px 0; }
+.approval-head:hover { background: #f0f2ee; }
+.approval-head .pill { margin-left: auto; }
+.caret { width: 12px; color: #6b7068; }
+.approval-body { padding: 0 12px 10px 30px; }
+
+.flag { background: #fff; border: 1px solid #e3e5e0; border-radius: 8px; padding: 8px 10px; margin: 8px 0 0; }
+.flag.ok { color: #1f7a3a; }
+.flag.new { box-shadow: 0 0 0 2px #f0b400; }
+.flag-top { display: flex; gap: 8px; align-items: baseline; }
+.flag-msg { font-weight: 500; }
+.lvl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 1px 6px; border-radius: 4px; flex: none; }
+.lvl.reject { background: #fde1e1; color: #a51f1f; } .lvl.risk { background: #fff3d1; color: #8a6500; }
+.new-tag { font-size: 11px; background: #f0b400; color: #1d1f1c; border-radius: 4px; padding: 0 5px; }
+.flag-fix { margin-top: 4px; font-size: 14px; }
+.flag-actions { margin-top: 6px; }
+button.small { padding: 4px 10px; font-size: 13px; }
+.explain { margin-top: 8px; border-top: 1px dashed #d5d9d2; padding-top: 8px; font-size: 14px; }
+.explain p { margin: 0 0 6px; }
+.explain blockquote { margin: 6px 0; padding: 6px 10px; border-left: 3px solid #1f7a3a; background: #f5f6f4; font-style: italic; }
