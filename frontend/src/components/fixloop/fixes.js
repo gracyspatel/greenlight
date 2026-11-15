@@ -79,7 +79,8 @@ export function fixesFor(flag, approval, ev) {
       fail: 'No date in the next 10 months clears every deadline. Try dropping a feature.',
     })
   }
-  if (/_(deadline|order)$/.test(id) && DROP[approval.id]) out.push(DROP[approval.id])
+  // dropping a feature only helps with a missed deadline, not with filing order
+  if (/_deadline$/.test(id) && DROP[approval.id]) out.push(DROP[approval.id])
 
   switch (id) {
     case 'usg_annual_cap': {
