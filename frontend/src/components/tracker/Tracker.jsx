@@ -38,8 +38,14 @@ export default function Tracker({ result, event, setEvent }) {
   const [showEmail, setShowEmail] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const setStatus = (id, status) =>
-    setEvent({ ...event, tracking: { ...(event.tracking || {}), [id]: { status } } })
+  // "submitted" also records the day it went in, so the engine can tell if it was late
+  const setStatus = (id, status) => {
+    const prev = event.tracking?.[id] || {}
+    const entry = status === 'submitted'
+      ? { status, submitted_on: prev.submitted_on || event.as_of || new Date().toISOString().slice(0, 10) }
+      : { status }
+    setEvent({ ...event, tracking: { ...(event.tracking || {}), [id]: entry } })
+  }
 
   const total = result.approvals.length
   const approved = result.approvals.filter(a => a.status === 'approved').length

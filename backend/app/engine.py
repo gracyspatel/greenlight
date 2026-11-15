@@ -137,7 +137,8 @@ def normalize(ev: dict) -> dict:
     for k in ("other_university_funding", "past_misuse", "usg_funds_low"):
         org[k] = bool(org.get(k, False))
     ev["org"] = org
-    ev["tracking"] = dict(ev.get("tracking") or {})
+    # {approval_id: {"status": ..., "submitted_on": "YYYY-MM-DD" (optional)}}
+    ev["tracking"] = {k: dict(v) if isinstance(v, dict) else {} for k, v in (ev.get("tracking") or {}).items()}
     return ev
 
 
@@ -229,9 +230,19 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
         deadline, breaks = (deadline_for(a, event_date) if event_date else (None, []))
         days_left = (deadline - today).days if deadline else None
         done = status in ("submitted", "approved")
+        # a submitted step still missed its deadline if it went in late (no date given: assume today)
+        submitted_on = _date(track.get("submitted_on")) or today
+        late = bool(deadline and status == "submitted" and submitted_on > deadline)
 
         # deadlines
-        if deadline and not done:
+        if late:
+            g = GENERIC["deadline_passed"]
+            flags.append(_flag(f"{a['id']}_deadline", g["level"],
+                               f"Submitted after the deadline ({(submitted_on - deadline).days} day(s) late).",
+                               a["text"], a["source"],
+                               g["fix"].format(deadline=fmt(deadline),
+                                               earliest=fmt(earliest_event_date(a, today)))))
+        elif deadline and not done:
             if days_left < 0:
                 earliest = earliest_event_date(a, today)
                 g = GENERIC["deadline_passed"]
@@ -279,7 +290,9 @@ def check(raw_event: dict, today: dt.date | None = None) -> dict:
         else:
             verdict = max((f["level"] for f in flags), key=LEVEL_RANK.get, default="ready")
 
-        if done:
+        if late:
+            color = "red"
+        elif done:
             color = "done"
         elif deadline is None:
             color = "none"

@@ -167,9 +167,35 @@ def test_returned_is_risk():
     assert flags(ev)["venue_request_returned"]["level"] == "risk"
 
 
-def test_submitted_stops_deadline_flag():
-    ev = base(date="2026-12-01", tracking={"usg_funding": {"status": "submitted"}})
+def test_submitted_on_time_has_no_deadline_flag():
+    # event Mar 4, 2027: USG deadline is in January; submitted on Nov 15 -> on time
+    ev = base(tracking={"usg_funding": {"status": "submitted", "submitted_on": "2026-11-15"}})
     assert "usg_funding_deadline" not in flags(ev)
+
+
+def test_submitted_late_keeps_the_missed_deadline():
+    ev = base(date="2026-12-01", tracking={"usg_funding": {"status": "submitted", "submitted_on": "2026-11-15"}})
+    f = flags(ev)["usg_funding_deadline"]
+    assert f["level"] == "reject" and "Submitted after the deadline" in f["message"]
+    # no submitted_on: compare against today (as_of)
+    ev["tracking"]["usg_funding"].pop("submitted_on")
+    assert flags(ev)["usg_funding_deadline"]["level"] == "reject"
+    # approved still clears it
+    ev["tracking"]["usg_funding"]["status"] = "approved"
+    assert "usg_funding_deadline" not in flags(ev)
+
+
+def test_marking_diwali_submitted_keeps_its_blockers():
+    ev = copy.deepcopy(DEMOS["blockers"])
+    before = engine.check(ev)["counts"]["reject"]
+    ev["tracking"] = {a: {"status": "submitted", "submitted_on": ev["as_of"]}
+                      for a in ("usg_funding", "social_dance_start", "social_dance_form")}
+    assert engine.check(ev)["counts"]["reject"] == before
+
+
+def test_tracking_tolerates_missing_or_odd_entries():
+    r = engine.check(base(tracking={"usg_funding": None, "venue_request": {"status": "submitted"}}))
+    assert r["verdict"] in ("ready", "risk", "reject")
 
 
 # ---------------------------------------------------------------- triggers + robustness

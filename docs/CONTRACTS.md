@@ -20,9 +20,12 @@ Real examples: `data/demo_events.json` and `frontend/src/mock/check_responses.js
   "budget_lines": [{"item": "Grand Ballroom", "category": "venue", "amount": 4500, "quote_attached": false}],
   "org": {"funded_events_this_semester": 4, "usg_received_this_year": 5200,
           "other_university_funding": false, "past_misuse": false, "usg_funds_low": false},
-  "tracking": {"venue_request": {"status": "submitted"}}   // not_started|submitted|approved|returned
+  "tracking": {"venue_request": {"status": "submitted", "submitted_on": "2026-11-15"}}   // not_started|submitted|approved|returned
 }
 ```
+`tracking.*.submitted_on` is optional (YYYY-MM-DD; the Tracker sets it to `as_of` or today when you pick
+"Submitted"). A submitted approval keeps its `*_deadline` flag ("Submitted after the deadline") if
+`submitted_on` (or today, when missing) is after the deadline. Only "approved" clears flags.
 `category` values: venue, food, entertainment, supplies, marketing, other.
 
 ## CheckResponse (output of /check)
