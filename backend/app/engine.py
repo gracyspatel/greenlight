@@ -181,8 +181,8 @@ def run_rule(rule: dict, ev: dict):
     elif c == "usg_annual_cap":
         total = org["usg_received_this_year"] + ev["amount_requested"]
         cap = p["cap"]
-        if total >= cap:
-            over = total - cap + 1
+        if total > cap:  # exactly the cap is allowed ("maximum of $8,000")
+            over = total - cap
             return "reject", f"${total:,.0f} for the year breaks the ${cap:,.0f} cap.", rule["fix"].format(total=total, over=over)
         if total >= cap * p["near_ratio"]:
             return "risk", f"${total:,.0f} for the year is close to the ${cap:,.0f} cap.", "Expect closer review. Keep this year's other requests small."

@@ -79,10 +79,13 @@ def test_annual_cap_near_is_risk():
     assert f["usg_annual_cap"]["level"] == "risk"
 
 
-def test_annual_cap_is_strictly_under():
-    # "under $8,000": exactly 8,000 for the year is already over
+def test_annual_cap_allows_exactly_the_cap():
+    # "maximum of $8,000" (confirmed by the team): exactly 8,000 is allowed, 1 dollar more is not
     f = flags(base(org__usg_received_this_year=6800))  # 6800 + 1200 = 8000
+    assert f["usg_annual_cap"]["level"] == "risk"   # allowed, but close to the cap
+    f = flags(base(org__usg_received_this_year=6801))  # 8001
     assert f["usg_annual_cap"]["level"] == "reject"
+    assert "$1" in f["usg_annual_cap"]["fix"]       # cut by at least $1
 
 
 def test_event_cap_counts_this_event():

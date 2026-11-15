@@ -157,8 +157,8 @@
         "near_ratio": 0.85
       },
       "level": "reject",
-      "text": "USG funding is capped at under $8,000 per year per RSO.",
-      "source": "https://usg.usc.edu/?p=4479",
+      "text": "Individual organizations may receive a maximum of $8,000 from the USG Funding Department per year.",
+      "source": "https://docs.google.com/document/d/1noJFJ4SxrFGD1Zm-6EqUHpXSIOUuFIL-gIobWXcXCt0/edit?usp=sharing",
       "fix": "You'd reach ${total:,.0f} for the year. Cut the request by at least ${over:,.0f}."
     },
     {
