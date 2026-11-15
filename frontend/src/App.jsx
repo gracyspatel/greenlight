@@ -130,13 +130,20 @@ export default function App() {
 
               {s.id === 'fix' && result && (
                 <>
-                  {problems === 0 && (
+                  {result.verdict_label === 'Needs info' ? (
+                    <div className="gl-allclear needs-info">
+                      <b>We need a few more facts before we can call this Ready:</b>
+                      <ul>{(result.questions || []).map(q => <li key={q}>{q}</li>)}</ul>
+                      Fill them in below, or answer them in step 1.
+                    </div>
+                  ) : problems === 0 && (
                     <div className="gl-allclear">
-                      <b>✓ Nothing to fix.</b> Your event meets every written rule we check. You can still change the date below.
+                      <b>✓ Nothing to fix.</b> Your event meets every written rule we check. You can still change anything below.
                     </div>
                   )}
                   <DateCalendar event={event} setEvent={setEvent} />
-                  {problems > 0 && <FixPanel event={event} setEvent={setEvent} result={result} />}
+                  {/* always shown, so a fix can be undone or a feature added back */}
+                  <FixPanel event={event} setEvent={setEvent} result={result} />
                 </>
               )}
 

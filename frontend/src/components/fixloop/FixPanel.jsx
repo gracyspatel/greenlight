@@ -77,7 +77,7 @@ export default function FixPanel({ event, setEvent, result: resultProp }) {
           ))}
         </div>
       )}
-      {result && fixes.length === 0 && result.verdict === 'ready' && <p className="fix-clear">✓ Nothing to fix. Every rule we check passes.</p>}
+      {!resultProp && result && fixes.length === 0 && result.verdict === 'ready' && <p className="fix-clear">✓ Nothing to fix. Every rule we check passes.</p>}
 
       <fieldset>
         <legend>When &amp; where</legend>
