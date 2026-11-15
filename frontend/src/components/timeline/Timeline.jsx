@@ -12,7 +12,9 @@ export default function Timeline({ result }) {
   const eventDate = result.event?.date
   const dated = result.approvals.filter(a => a.deadline)
   const undated = result.approvals.filter(a => !a.deadline)
-  const num = Object.fromEntries(dated.map((a, i) => [a.id, i + 1]))
+  // the engine's step numbers, so #N matches the cards and the Tracker (undated steps keep theirs)
+  const num = Object.fromEntries(result.approvals.map(a => [a.id, a.order]))
+  const after = a => a.depends_on.map(d => (num[d] ? `#${num[d]} ${nameOf[d]}` : nameOf[d] || d)).join(', ')
   const nameOf = Object.fromEntries(result.approvals.map(a => [a.id, a.name]))
 
   if (!eventDate) {
@@ -62,7 +64,7 @@ export default function Timeline({ result }) {
                       {a.office}{a.link && <> · <a href={a.link} target="_blank" rel="noreferrer">{a.system}</a></>}
                     </div>
                     {a.depends_on.length > 0 && (
-                      <div className="tl-after">↳ after {a.depends_on.map(d => (num[d] ? `#${num[d]} ${nameOf[d]}` : nameOf[d] || d)).join(', ')}</div>
+                      <div className="tl-after">↳ after {after(a)}</div>
                     )}
                   </div>
                 </div>
@@ -87,9 +89,9 @@ export default function Timeline({ result }) {
           <b className="small">No fixed deadline in our rulebook. Confirm with the office:</b>
           <ul>
             {undated.map(a => (
-              <li key={a.id}>{a.name} <span className="muted small">· {a.office}
+              <li key={a.id}>#{a.order} {a.name} <span className="muted small">· {a.office}
                 {a.link && <> · <a href={a.link} target="_blank" rel="noreferrer">{a.system}</a></>}
-                {a.depends_on.length > 0 && <> · after {a.depends_on.map(d => nameOf[d] || d).join(', ')}</>}</span></li>
+                {a.depends_on.length > 0 && <> · after {after(a)}</>}</span></li>
             ))}
           </ul>
         </div>
